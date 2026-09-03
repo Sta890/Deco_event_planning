@@ -18,11 +18,28 @@ export class PanierComponent implements OnInit {
 
   panier     = signal<PanierResponse | null>(null);
   chargement = signal(false);
-  erreur     = signal<string | null>(null);   // ← nouveau : afficher l'erreur dans le template
+  erreur     = signal<string | null>(null);
 
-  total  = computed(() => this.panier()?.total ?? 0);
+  // Liste des lignes de panier
   lignes = computed(() => this.panier()?.lignes ?? []);
-  panierVide = computed(() => this.lignes().length === 0);  // ← utile dans le template
+  panierVide = computed(() => this.lignes().length === 0);
+
+  // Calcul dynamique du total (prend en compte montantTotal/total du backend ou recalcule si 0)
+  total = computed(() => {
+    const p = this.panier() as any;
+    if (!p) return 0;
+
+    const backendTotal = p.montantTotal ?? p.total;
+    if (backendTotal && backendTotal > 0) {
+      return backendTotal;
+    }
+
+    // Recalcul de secours à partir des sous-totaux des lignes
+    return this.lignes().reduce((acc, ligne: any) => {
+      const sousTotalLigne = ligne.sousTotal ?? (ligne.prixUnitaire * ligne.quantite);
+      return acc + (sousTotalLigne || 0);
+    }, 0);
+  });
 
   constructor(
     private panierApiService: PanierApiService,
@@ -30,7 +47,7 @@ export class PanierComponent implements OnInit {
     private router: Router
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     const user = this.authService.getUtilisateur();
     if (!user) {
       this.router.navigate(['/auth/login']);
@@ -39,7 +56,7 @@ export class PanierComponent implements OnInit {
     this.chargerPanier();
   }
 
-  chargerPanier() {
+  chargerPanier(): void {
     const user = this.authService.getUtilisateur();
     if (!user) return;
 
@@ -59,12 +76,12 @@ export class PanierComponent implements OnInit {
     });
   }
 
-  modifierQuantite(ligneId: number, quantite: number) {
+  modifierQuantite(ligneId: number, quantite: number): void {
     const user = this.authService.getUtilisateur();
     if (!user) return;
 
     if (quantite <= 0) {
-      this.supprimerArticle(ligneId);   // ← si quantité = 0, on supprime
+      this.supprimerArticle(ligneId);
       return;
     }
 
@@ -74,10 +91,7 @@ export class PanierComponent implements OnInit {
     });
   }
 
-
-
-
-  supprimerArticle(ligneId: number) {
+  supprimerArticle(ligneId: number): void {
     const user = this.authService.getUtilisateur();
     if (!user) return;
 
@@ -86,7 +100,8 @@ export class PanierComponent implements OnInit {
       error: (err) => console.error('Erreur suppression article', err)
     });
   }
-  ajouterArticle(articleId: number) {
+
+  ajouterArticle(articleId: number): void {
     const user = this.authService.getUtilisateur();
     if (!user) return;
 
@@ -94,9 +109,8 @@ export class PanierComponent implements OnInit {
 
     this.panierApiService.ajouterArticle(user.id, { articleId: articleId, quantite: 1 }).subscribe({
       next: (panierMiseAJour) => {
-        this.panier.set(panierMiseAJour); // ← Met à jour l'affichage de votre template HTML
+        this.panier.set(panierMiseAJour);
         this.chargement.set(false);
-        console.log('Article ajouté avec succès !', panierMiseAJour);
       },
       error: (err) => {
         this.erreur.set("Erreur lors de l'ajout de l'article");
@@ -106,7 +120,7 @@ export class PanierComponent implements OnInit {
     });
   }
 
-  viderPanier() {
+  viderPanier(): void {
     const user = this.authService.getUtilisateur();
     if (!user) return;
 
@@ -116,8 +130,7 @@ export class PanierComponent implements OnInit {
     });
   }
 
-  allerAuPaiement() {
+  allerAuPaiement(): void {
     this.router.navigate(['/client/paiement']);
   }
-
 }

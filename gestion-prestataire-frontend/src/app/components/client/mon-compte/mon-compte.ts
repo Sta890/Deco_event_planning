@@ -1,8 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TagModule } from 'primeng/tag';
 import { AuthService } from '../../../services/auth';
+import { DevisApiService } from '../../../services/api/devis-api';
+import { FactureApiService } from '../../../services/api/facture-api';
 
 @Component({
   selector: 'app-mon-compte',
@@ -11,31 +13,49 @@ import { AuthService } from '../../../services/auth';
   templateUrl: './mon-compte.html',
   styleUrl: './mon-compte.css'
 })
-export class MonCompteComponent {
+export class MonCompteComponent implements OnInit {
 
   ongletActif = signal<'devis' | 'factures'>('devis');
 
-  mesDevis = signal([
-    { idDevis: 1, typeEvenement: 'Mariage', dateCreation: new Date('2026-01-10'), montantTotal: 170000, statut: 'Validé' },
-    { idDevis: 2, typeEvenement: 'Baptême', dateCreation: new Date('2026-02-15'), montantTotal: 85000, statut: 'En attente' },
-  ]);
+  mesDevis = signal<any[]>([]);
+  mesFactures = signal<any[]>([]);
 
-  mesFactures = signal([
-    { idFacture: 1, typeEvenement: 'Mariage', dateFacture: new Date('2026-01-15'), montantTotal: 170000, statut: 'Payé' },
-    { idFacture: 2, typeEvenement: 'Baptême', dateFacture: new Date('2026-02-20'), montantTotal: 85000, statut: 'En attente' },
-  ]);
+  constructor(
+    private authService: AuthService,
+    private devisApiService: DevisApiService,
+    private factureApiService: FactureApiService
+  ) {}
 
-  constructor(private authService: AuthService) {}
+  ngOnInit(): void {
+    const user = this.authService.getUtilisateur();
+    if (user && user.id) {
+      this.chargerDonnees(user.id);
+    }
+  }
+
+  chargerDonnees(clientId: number): void {
+    // Appelle la méthode GET client de devis-api.ts
+    this.devisApiService.findByClientId(clientId).subscribe({
+      next: (data) => this.mesDevis.set(data),
+      error: (err) => console.error('Erreur devis', err)
+    });
+
+    // Appelle la méthode GET client de facture-api.ts
+    this.factureApiService.findByClientId(clientId).subscribe({
+      next: (data) => this.mesFactures.set(data),
+      error: (err) => console.error('Erreur factures', err)
+    });
+  }
 
   getEmail() {
     return this.authService.getUtilisateur()?.email ?? '';
   }
 
   getCouleurStatut(statut: string) {
-    switch (statut) {
-      case 'Validé': case 'Payé': return 'success';
-      case 'En attente': return 'warn';
-      case 'Refusé': case 'En retard': return 'danger';
+    switch (statut?.toUpperCase()) {
+      case 'VALIDE': case 'PAYE': case 'VALIDÉ': case 'PAYÉ': return 'success';
+      case 'EN_ATTENTE': return 'warn';
+      case 'REFUSE': case 'ANNULE': return 'danger';
       default: return 'secondary';
     }
   }

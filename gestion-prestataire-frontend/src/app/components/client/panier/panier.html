@@ -40,8 +40,8 @@
                 [style]="{ width: '120px' }" />
             </div>
             <span class="article-sous-total">
-              {{ ligne.sousTotal | currency:'XAF':'symbol':'1.0-0' }}
-            </span>
+  {{ (ligne.sousTotal || (ligne.prixUnitaire * ligne.quantite)) | currency:'XAF':'symbol':'1.0-0' }}
+</span>
             <button class="btn-supprimer" (click)="supprimerArticle(ligne.id)">
               <i class="pi pi-trash"></i>
             </button>

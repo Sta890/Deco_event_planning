@@ -1,4 +1,4 @@
-<p>layout works!</p>
+<p>Welcome!</p>
 <div class="client-layout">
 
   <!-- Navbar top -->
@@ -13,7 +13,7 @@
     <!-- Menu centre -->
     <div class="navbar-menu">
       @for (item of menuItems; track item.route) {
-        
+
          <a [routerLink]="item.route"
           routerLinkActive="nav-active"
           class="nav-link">
