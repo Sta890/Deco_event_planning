@@ -1,0 +1,5 @@
+Gestion_de_Prestataire_deco-backend/target/
+gestion-prestataire-frontend/node_modules/
+gestion-prestataire-frontend/dist/
+gestion-prestataire-frontend/.angular/
+.DS_Store
