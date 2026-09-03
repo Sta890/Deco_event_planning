@@ -1,0 +1,66 @@
+<div class="accueil">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-content">
+      <h1 class="hero-title">
+        Transformez vos événements en
+        <span class="hero-highlight">moments inoubliables</span>
+      </h1>
+      <p class="hero-subtitle">
+        Spécialiste de la décoration événementielle au Cameroun.
+        Mariages, baptêmes, cérémonies et anniversaires.
+      </p>
+      <div class="hero-actions">
+        <a routerLink="/client/catalogue" class="btn-primary">
+          <i class="pi pi-th-large"></i>
+          Voir nos prestations
+        </a>
+        <a routerLink="/client/demande-devis" class="btn-secondary">
+          <i class="pi pi-file"></i>
+          Demander un devis
+        </a>
+      </div>
+    </div>
+    <div class="hero-image">
+      <div class="hero-emoji">✨</div>
+    </div>
+  </div>
+
+  <!-- Services -->
+  <div class="services-section">
+    <h2 class="section-title">Nos Prestations</h2>
+    <p class="section-subtitle">Choisissez le type d'événement qui vous correspond</p>
+    <div class="services-grid">
+      @for (service of services; track service.titre) {
+        <div class="service-card">
+          <div class="service-icon">{{ service.icon }}</div>
+          <h3 class="service-titre">{{ service.titre }}</h3>
+          <p class="service-desc">{{ service.description }}</p>
+          @if (service.nbArticles() > 0) {
+            <span class="service-nb-articles">
+              <i class="pi pi-box"></i>
+              {{ service.nbArticles() }} article(s) disponible(s)
+            </span>
+          }
+          <a [routerLink]="'/client/catalogue'"
+             [queryParams]="{ type: service.typeEvenement }"
+             class="service-link">
+            Voir les articles <i class="pi pi-arrow-right"></i>
+          </a>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <h2 class="cta-title">Prêt à organiser votre événement ?</h2>
+    <p class="cta-subtitle">Contactez-nous pour un devis personnalisé gratuit</p>
+    <a routerLink="/client/demande-devis" class="btn-primary">
+      <i class="pi pi-send"></i>
+      Demander un devis gratuit
+    </a>
+  </div>
+
+</div>

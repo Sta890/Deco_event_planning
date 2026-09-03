@@ -1,0 +1,53 @@
+<p>layout works!</p>
+<div class="client-layout">
+
+  <!-- Navbar top -->
+  <nav class="navbar">
+
+    <!-- Logo -->
+    <div class="navbar-logo">
+      <i class="pi pi-sparkles logo-icon"></i>
+      <span class="logo-text">DecoEvent</span>
+    </div>
+
+    <!-- Menu centre -->
+    <div class="navbar-menu">
+      @for (item of menuItems; track item.route) {
+        
+         <a [routerLink]="item.route"
+          routerLinkActive="nav-active"
+          class="nav-link">
+          <i [class]="item.icon"></i>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    </div>
+
+    <!-- Droite -->
+    <div class="navbar-right">
+      <a [routerLink]="'/client/panier'" class="panier-btn">
+        <i class="pi pi-shopping-cart"></i>
+        <span>Panier</span>
+      </a>
+      <div class="user-menu">
+        <i class="pi pi-user user-icon"></i>
+        <span class="user-email">{{ getEmail() }}</span>
+        <p-button
+          icon="pi pi-sign-out"
+          severity="danger"
+          [text]="true"
+          [rounded]="true"
+          (onClick)="seDeconnecter()"
+          pTooltip="Se déconnecter"
+          tooltipPosition="bottom" />
+      </div>
+    </div>
+
+  </nav>
+
+  <!-- Contenu -->
+  <div class="client-content">
+    <router-outlet />
+  </div>
+
+</div>

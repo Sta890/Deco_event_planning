@@ -1,0 +1,71 @@
+<div class="mon-compte">
+
+  <!-- Profil -->
+  <div class="profil-card">
+    <div class="profil-avatar">👤</div>
+    <div class="profil-info">
+      <h2 class="profil-nom">Mon Compte</h2>
+      <span class="profil-email">{{ getEmail() }}</span>
+    </div>
+    <div class="profil-stats">
+      <div class="stat">
+        <span class="stat-val">{{ mesDevis().length }}</span>
+        <span class="stat-lbl">Devis</span>
+      </div>
+      <div class="stat">
+        <span class="stat-val">{{ mesFactures().length }}</span>
+        <span class="stat-lbl">Factures</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onglets -->
+  <div class="onglets">
+    <button
+      class="onglet-btn"
+      [class.onglet-actif]="ongletActif() === 'devis'"
+      (click)="ongletActif.set('devis')">
+      <i class="pi pi-file"></i> Mes Devis
+    </button>
+    <button
+      class="onglet-btn"
+      [class.onglet-actif]="ongletActif() === 'factures'"
+      (click)="ongletActif.set('factures')">
+      <i class="pi pi-file-edit"></i> Mes Factures
+    </button>
+  </div>
+
+  <!-- Contenu onglets -->
+  @if (ongletActif() === 'devis') {
+    <div class="liste">
+      @for (devis of mesDevis(); track devis.idDevis) {
+        <div class="item-card">
+          <div class="item-icon">📋</div>
+          <div class="item-info">
+            <span class="item-titre">Devis #{{ devis.idDevis }} — {{ devis.typeEvenement }}</span>
+            <span class="item-date">{{ devis.dateCreation | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <span class="item-montant">{{ devis.montantTotal | currency:'XAF':'symbol':'1.0-0' }}</span>
+          <p-tag [value]="devis.statut" [severity]="getCouleurStatut(devis.statut)" />
+        </div>
+      }
+    </div>
+  }
+
+  @if (ongletActif() === 'factures') {
+    <div class="liste">
+      @for (facture of mesFactures(); track facture.idFacture) {
+        <div class="item-card">
+          <div class="item-icon">🧾</div>
+          <div class="item-info">
+            <span class="item-titre">Facture #{{ facture.idFacture }} — {{ facture.typeEvenement }}</span>
+            <span class="item-date">{{ facture.dateFacture | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <span class="item-montant">{{ facture.montantTotal | currency:'XAF':'symbol':'1.0-0' }}</span>
+          <p-tag [value]="facture.statut" [severity]="getCouleurStatut(facture.statut)" />
+        </div>
+      }
+    </div>
+  }
+
+</div>

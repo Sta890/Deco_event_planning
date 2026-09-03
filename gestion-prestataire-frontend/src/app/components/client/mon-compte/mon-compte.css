@@ -1,0 +1,136 @@
+.mon-compte {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.profil-card {
+  background: #13151e;
+  border: 1px solid #ffffff10;
+  border-radius: 16px;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.profil-avatar {
+  font-size: 3rem;
+}
+
+.profil-info {
+  flex: 1;
+}
+
+.profil-nom {
+  color: white;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.profil-email {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.profil-stats {
+  display: flex;
+  gap: 2rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-val {
+  color: #f472b6;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.stat-lbl {
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
+.onglets {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.onglet-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: 1px solid #ffffff20;
+  color: #9ca3af;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.onglet-btn:hover {
+  background: #ffffff10;
+  color: white;
+}
+
+.onglet-actif {
+  background: #f472b620 !important;
+  border-color: #f472b6 !important;
+  color: #f472b6 !important;
+}
+
+.liste {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.item-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: #13151e;
+  border: 1px solid #ffffff10;
+  border-radius: 12px;
+  transition: border-color 0.2s;
+}
+
+.item-card:hover {
+  border-color: #f472b640;
+}
+
+.item-icon {
+  font-size: 1.5rem;
+}
+
+.item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.item-titre {
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.item-date {
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
+.item-montant {
+  color: #f472b6;
+  font-weight: 700;
+  font-size: 0.95rem;
+}

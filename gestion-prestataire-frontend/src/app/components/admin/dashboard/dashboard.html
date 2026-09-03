@@ -1,0 +1,66 @@
+<div class="dashboard">
+
+  <!-- Titre -->
+  <div class="dashboard-header">
+    <h1 class="dashboard-title">Tableau de bord Admin</h1>
+    <span class="dashboard-date">21 Mai 2026</span>
+  </div>
+
+  <!-- Cartes stats -->
+  <div class="stats-grid">
+    @for (stat of stats(); track stat.label) {
+      <div class="stat-card">
+        <div class="stat-icon" [style.background]="stat.couleur + '20'">
+          <i [class]="stat.icon" [style.color]="stat.couleur"></i>
+        </div>
+        <div class="stat-info">
+          <span class="stat-valeur">{{ stat.valeur }}</span>
+          <span class="stat-label">{{ stat.label }}</span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Contenu bas -->
+  <div class="dashboard-bottom">
+
+    <!-- Activités récentes -->
+    <div class="card">
+      <h3 class="card-title">Activités Récentes</h3>
+      <div class="activites">
+        @for (item of activitesRecentes(); track item.action) {
+          <div class="activite-item">
+            <div class="activite-icon" [style.background]="item.couleur + '20'">
+              <i [class]="item.icon" [style.color]="item.couleur"></i>
+            </div>
+            <div class="activite-info">
+              <span class="activite-action">{{ item.action }}</span>
+              <span class="activite-detail">{{ item.detail }}</span>
+            </div>
+            <span class="activite-date">{{ item.date }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Infos Prestataire unique -->
+    <div class="card">
+      <h3 class="card-title">Mon Activité</h3>
+      <div class="prestataires">
+        <div class="prestataire-item">
+          <div class="prestataire-avatar">D</div>
+          <div class="prestataire-info">
+            <span class="prestataire-nom">Décorateur Événementiel</span>
+            <span class="prestataire-specialite">Mariage · Baptême · Cérémonie · Anniversaire</span>
+          </div>
+          <div class="prestataire-statut" style="color: #22c55e;">
+            <i class="pi pi-circle-fill" style="font-size: 0.6rem;"></i>
+            Actif
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

@@ -1,0 +1,85 @@
+<div style="margin-bottom: 1rem;">
+  <p-button label="Nouvelle Prestation" icon="pi pi-plus" (onClick)="ouvrirDialog()" />
+</div>
+
+<p-table [value]="prestations()" [paginator]="true" [rows]="5">
+
+  <ng-template pTemplate="header">
+    <tr>
+      <th>ID</th>
+      <th>Type Événement</th>
+      <th>Date Événement</th>
+      <th>Lieu</th>
+      <th>Description</th>
+      <th>ID Client</th>
+      <th>Actions</th>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-prestation>
+    <tr>
+      <td>{{ prestation.idPrestation }}</td>
+      <td>
+        <p-tag [value]="prestation.typeEvenement" [severity]="getCouleurEvenement(prestation.typeEvenement)" />
+      </td>
+      <td>{{ prestation.dateEvenement | date:'dd/MM/yyyy' }}</td>
+      <td>{{ prestation.lieu }}</td>
+      <td>{{ prestation.description }}</td>
+      <td>{{ prestation.idClient }}</td>
+      <td style="display: flex; gap: 0.5rem;">
+        <p-button icon="pi pi-pencil" severity="info" (onClick)="modifierPrestation(prestation)" />
+        <p-button icon="pi pi-trash" severity="danger" (onClick)="supprimerPrestation(prestation.idPrestation)" />
+      </td>
+    </tr>
+  </ng-template>
+
+</p-table>
+
+<p-dialog
+  [visible]="dialogVisible()"
+  (visibleChange)="dialogVisible.set($event)"
+  header="Prestation"
+  [modal]="true"
+  [style]="{ width: '500px' }">
+
+  <div style="display: flex; flex-direction: column; gap: 1rem; padding: 1rem 0;">
+
+    <p-select
+      [options]="typeEvenementOptions"
+      [ngModel]="prestationSelectionnee().typeEvenement"
+      (ngModelChange)="mettreAJourChamp('typeEvenement', $event)"
+      placeholder="Type d'événement" />
+
+    <p-datepicker
+      [ngModel]="prestationSelectionnee().dateEvenement"
+      (ngModelChange)="mettreAJourChamp('dateEvenement', $event)"
+      dateFormat="dd/mm/yy"
+      placeholder="Date de l'événement" />
+
+    <input
+      pInputText
+      placeholder="Lieu"
+      [value]="prestationSelectionnee().lieu"
+      (input)="mettreAJourChamp('lieu', $any($event.target).value)" />
+
+    <textarea
+  placeholder="Description"
+  rows="3"
+  style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #ffffff20; background: #1e1e2e; color: white; resize: vertical;"
+  [value]="prestationSelectionnee().description"
+  (input)="mettreAJourChamp('description', $any($event.target).value)">
+</textarea>
+
+    <p-inputNumber
+      [ngModel]="prestationSelectionnee().idClient"
+      (ngModelChange)="mettreAJourChamp('idClient', $event)"
+      placeholder="ID Client" />
+
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Annuler" severity="secondary" (onClick)="dialogVisible.set(false)" />
+    <p-button label="Sauvegarder" (onClick)="sauvegarder()" />
+  </ng-template>
+
+</p-dialog>

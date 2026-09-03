@@ -1,0 +1,76 @@
+<div class="panier">
+
+  <div class="panier-header">
+    <h1 class="panier-title">Mon Panier</h1>
+    @if (lignes().length > 0) {
+      <button class="btn-vider" (click)="viderPanier()">
+        <i class="pi pi-trash"></i> Vider le panier
+      </button>
+    }
+  </div>
+
+  @if (lignes().length === 0) {
+    <div class="panier-vide">
+      <div class="vide-icon">🛒</div>
+      <h3>Votre panier est vide</h3>
+      <p>Ajoutez des articles depuis notre catalogue</p>
+      <a routerLink="/client/catalogue" class="btn-primary">
+        <i class="pi pi-th-large"></i> Voir le catalogue
+      </a>
+    </div>
+  }
+
+  @if (lignes().length > 0) {
+    <div class="panier-content">
+
+      <!-- Liste articles -->
+      <div class="articles-list">
+        @for (ligne of lignes(); track ligne.id) {
+          <div class="article-item">
+            <div class="article-info">
+              <span class="article-nom">{{ ligne.articleNom }}</span>
+              <span class="article-prix-unit">{{ ligne.prixUnitaire | currency:'XAF':'symbol':'1.0-0' }} / unité</span>
+            </div>
+            <div class="article-quantite">
+              <p-inputNumber
+                [ngModel]="ligne.quantite"
+                (ngModelChange)="modifierQuantite(ligne.id, $event)"
+                [min]="1"
+                [showButtons]="true"
+                [style]="{ width: '120px' }" />
+            </div>
+            <span class="article-sous-total">
+              {{ ligne.sousTotal | currency:'XAF':'symbol':'1.0-0' }}
+            </span>
+            <button class="btn-supprimer" (click)="supprimerArticle(ligne.id)">
+              <i class="pi pi-trash"></i>
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Résumé -->
+      <div class="panier-resume">
+        <h3 class="resume-title">Résumé</h3>
+        <div class="resume-ligne">
+          <span>Sous-total</span>
+          <span>{{ total() | currency:'XAF':'symbol':'1.0-0' }}</span>
+        </div>
+        <div class="resume-total">
+          <span>Total estimé</span>
+          <span>{{ total() | currency:'XAF':'symbol':'1.0-0' }}</span>
+        </div>
+        <a routerLink="/client/demande-devis" class="btn-devis">
+          <i class="pi pi-file"></i>
+          Demander un devis
+        </a>
+        <a routerLink="/client/catalogue" class="btn-continuer">
+          <i class="pi pi-arrow-left"></i>
+          Continuer les achats
+        </a>
+      </div>
+
+    </div>
+  }
+
+</div>

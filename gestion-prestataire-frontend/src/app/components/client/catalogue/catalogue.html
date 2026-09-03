@@ -1,0 +1,58 @@
+<div class="catalogue">
+
+  <!-- Header -->
+  <div class="catalogue-header">
+    <div>
+      <h1 class="catalogue-title">Notre Catalogue</h1>
+      <p class="catalogue-subtitle">Choisissez vos articles et demandez un devis</p>
+    </div>
+
+    <!-- CORRECTION : Vérification sur nombreArticles() au lieu de panier().length -->
+    @if (nombreArticles() > 0) {
+      <a routerLink="/client/panier" class="panier-indicator">
+        <i class="pi pi-shopping-cart"></i>
+        <span>{{ nombreArticles() }} article(s) — {{ totalPanier() | currency:'XAF':'symbol':'1.0-0' }}</span>
+        <i class="pi pi-arrow-right"></i>
+      </a>
+    }
+  </div>
+
+  <!-- Filtres -->
+  <div class="filtres">
+    @for (option of filtreOptions; track option.value) {
+      <button
+        class="filtre-btn"
+        [class.filtre-actif]="filtreActif() === option.value"
+        (click)="filtreActif.set(option.value)">
+        {{ option.label }}
+      </button>
+    }
+  </div>
+
+  <!-- Grille articles -->
+  <div class="articles-grid">
+    @for (article of articlesFiltres(); track article.idArticle) {
+      <div class="article-card" [class.article-selected]="estDansPanier(article.idArticle)">
+        <div class="article-emoji">{{ article.emoji }}</div>
+        <div class="article-body">
+          <div class="article-header">
+            <h3 class="article-nom">{{ article.nom }}</h3>
+            <p-tag [value]="article.typeEvenement" [severity]="getCouleurType(article.typeEvenement)" />
+          </div>
+          <p class="article-desc">{{ article.description }}</p>
+          <div class="article-footer">
+            <span class="article-prix">{{ article.prixUnitaire | currency:'XAF':'symbol':'1.0-0' }}</span>
+            <button
+              class="btn-ajouter"
+              [class.btn-ajoute]="estDansPanier(article.idArticle)"
+              (click)="ajouterAuPanier(article)">
+              <i [class]="estDansPanier(article.idArticle) ? 'pi pi-check' : 'pi pi-plus'"></i>
+              {{ estDansPanier(article.idArticle) ? 'Ajouté' : 'Ajouter' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+</div>

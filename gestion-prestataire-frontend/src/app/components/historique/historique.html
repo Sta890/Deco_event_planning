@@ -1,0 +1,37 @@
+<!-- Filtre par date -->
+<div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+  <p-datepicker
+    [ngModel]="dateFiltre()"
+    (ngModelChange)="dateFiltre.set($event)"
+    dateFormat="dd/mm/yy"
+    placeholder="Filtrer par date" />
+
+  <p-button
+    label="Réinitialiser"
+    icon="pi pi-times"
+    severity="secondary"
+    (onClick)="reinitialiserFiltre()" />
+</div>
+
+<!-- Tableau -->
+<p-table [value]="historiquesFiltres()" [paginator]="true" [rows]="5">
+
+  <ng-template pTemplate="header">
+    <tr>
+      <th>ID</th>
+      <th>Action</th>
+      <th>Date</th>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-historique>
+    <tr>
+      <td>{{ historique.idHistorique }}</td>
+      <td>
+        <p-chip [label]="historique.action" />
+      </td>
+      <td>{{ historique.dateAction | date:'dd/MM/yyyy' }}</td>
+    </tr>
+  </ng-template>
+
+</p-table>

@@ -1,0 +1,199 @@
+.inscription-wrapper {
+  height: 100vh;
+  background: #0f1117;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inscription-card {
+  background: #13151e;
+  border: 1px solid #ffffff10;
+  border-radius: 16px;
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.login-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.login-logo i {
+  font-size: 2rem;
+  color: #f472b6;
+}
+
+.login-logo h1 {
+  color: white;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.login-subtitle {
+  color: #6b7280;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+/* ===== ETAPES ===== */
+.etapes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.etape {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.etape-cercle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #ffffff20;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.etape-active .etape-cercle {
+  border-color: #f472b6;
+  color: #f472b6;
+  background: #f472b620;
+}
+
+.etape-done .etape-cercle {
+  border-color: #22c55e;
+  color: #22c55e;
+  background: #22c55e20;
+}
+
+.etape span {
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+.etape-active span {
+  color: #f472b6;
+}
+
+.etape-ligne {
+  width: 60px;
+  height: 2px;
+  background: #ffffff15;
+  margin-bottom: 1rem;
+  transition: background 0.3s;
+}
+
+.etape-ligne-active {
+  background: #22c55e;
+}
+
+/* ===== FORM ===== */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.field label {
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+.field input,
+.field p-password {
+  width: 100%;
+}
+
+.required {
+  color: #f472b6;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.5rem;
+  background: #f472b6;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background 0.2s;
+  flex: 1;
+}
+
+.btn-primary:hover {
+  background: #ec4899;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.5rem;
+  background: transparent;
+  color: #9ca3af;
+  border: 1px solid #ffffff20;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  flex: 1;
+}
+
+.btn-secondary:hover {
+  background: #ffffff10;
+  color: white;
+}
+
+/* ===== LOGIN LINK ===== */
+.login-link {
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.login-link a {
+  color: #f472b6;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
+}

@@ -1,0 +1,118 @@
+<div class="demande-devis">
+
+  @if (!envoye()) {
+    <div class="form-container">
+
+      <div class="form-header">
+        <h1 class="form-title">Demande de Devis</h1>
+        <p class="form-subtitle">Remplissez le formulaire, nous vous répondons sous 24h</p>
+      </div>
+
+      <div class="form-grid">
+
+        <!-- Infos personnelles -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="pi pi-user"></i> Vos informations
+          </h3>
+          <div class="fields">
+            <div class="field">
+              <label>Nom complet <span class="required">*</span></label>
+              <input pInputText placeholder="Jean Dupont"
+                [value]="formulaire().nom"
+                (input)="mettreAJour('nom', $any($event.target).value)" />
+            </div>
+            <div class="field">
+              <label>Téléphone <span class="required">*</span></label>
+              <input pInputText placeholder="6XX XXX XXX"
+                [value]="formulaire().telephone"
+                (input)="mettreAJour('telephone', $any($event.target).value)" />
+            </div>
+            <div class="field">
+              <label>Email</label>
+              <input pInputText placeholder="votre@email.cm"
+                [value]="formulaire().email"
+                (input)="mettreAJour('email', $any($event.target).value)" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Infos événement -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="pi pi-sparkles"></i> Votre événement
+          </h3>
+          <div class="fields">
+            <div class="field">
+              <label>Type d'événement <span class="required">*</span></label>
+              <p-select
+                [options]="typeEvenementOptions"
+                [ngModel]="formulaire().typeEvenement"
+                (ngModelChange)="mettreAJour('typeEvenement', $event)"
+                placeholder="Choisir..." />
+            </div>
+            <div class="field">
+              <label>Date de l'événement <span class="required">*</span></label>
+              <p-datepicker
+                [ngModel]="formulaire().dateEvenement"
+                (ngModelChange)="mettreAJour('dateEvenement', $event)"
+                dateFormat="dd/mm/yy"
+                placeholder="JJ/MM/AAAA" />
+            </div>
+            <div class="field">
+              <label>Lieu</label>
+              <input pInputText placeholder="Salle, ville..."
+                [value]="formulaire().lieu"
+                (input)="mettreAJour('lieu', $any($event.target).value)" />
+            </div>
+            <div class="field">
+              <label>Nombre de personnes</label>
+              <input pInputText placeholder="ex: 150"
+                [value]="formulaire().nombrePersonnes"
+                (input)="mettreAJour('nombrePersonnes', $any($event.target).value)" />
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Message -->
+      <div class="field full-width">
+        <label>Message / Précisions</label>
+        <textarea
+          rows="4"
+          placeholder="Décrivez vos besoins, vos préférences de couleurs, thème..."
+          style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #ffffff20; background: #1e1e2e; color: white; resize: vertical; font-family: inherit;"
+          [value]="formulaire().message"
+          (input)="mettreAJour('message', $any($event.target).value)">
+        </textarea>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <a routerLink="/client/catalogue" class="btn-secondary">
+          <i class="pi pi-arrow-left"></i> Retour au catalogue
+        </a>
+        <button class="btn-primary" (click)="envoyer()">
+          <i class="pi pi-send"></i> Envoyer la demande
+        </button>
+      </div>
+
+    </div>
+  }
+
+  <!-- Confirmation -->
+  @if (envoye()) {
+    <div class="confirmation">
+      <div class="confirmation-icon">✅</div>
+      <h2 class="confirmation-titre">Demande envoyée !</h2>
+      <p class="confirmation-msg">
+        Votre demande de devis a bien été reçue. Nous vous contacterons dans les 24h.
+      </p>
+      <a routerLink="/client/accueil" class="btn-primary">
+        <i class="pi pi-home"></i> Retour à l'accueil
+      </a>
+    </div>
+  }
+
+</div>

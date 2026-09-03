@@ -1,0 +1,152 @@
+<div style="margin-bottom: 1rem;">
+  <p-button label="Créer un devis" icon="pi pi-plus" (onClick)="ouvrirDialog()" />
+</div>
+
+<p-table [value]="devis()" [paginator]="true" [rows]="5">
+
+  <ng-template pTemplate="header">
+    <tr>
+      <th>ID</th>
+      <th>Date</th>
+      <th>Client</th>
+      <th>Prestation</th>
+      <th>Nb Articles</th>
+      <th>Total</th>
+      <th>Statut</th>
+      <th>Actions</th>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-devis>
+    <tr>
+      <td>{{ devis.idDevis }}</td>
+      <td>{{ devis.dateCreation | date:'dd/MM/yyyy' }}</td>
+      <td>{{ devis.idClient }}</td>
+      <td>{{ devis.idPrestation }}</td>
+      <td>{{ devis.lignes.length }} article(s)</td>
+      <td>{{ devis.montantTotal | currency:'XAF':'symbol':'1.0-0' }}</td>
+      <td>
+        <p-tag [value]="devis.statut" [severity]="getCouleurStatut(devis.statut)" />
+      </td>
+      <td style="display: flex; gap: 0.5rem;">
+        <p-button icon="pi pi-pencil" severity="info" (onClick)="modifierDevis(devis)" />
+        <p-button icon="pi pi-trash" severity="danger" (onClick)="supprimerDevis(devis.idDevis)" />
+         @if (devis.statut === 'Validé') {
+    <p-button 
+      icon="pi pi-file-edit" 
+      severity="success" 
+      pTooltip="Générer Facture"
+      tooltipPosition="top"
+      (onClick)="genererFacture(devis)" />
+  }
+      </td>
+    </tr>
+  </ng-template>
+
+</p-table>
+
+<!-- Dialog Devis -->
+<p-dialog
+  [visible]="dialogVisible()"
+  (visibleChange)="dialogVisible.set($event)"
+  header="Nouveau Devis"
+  [modal]="true"
+  [style]="{ width: '850px' }">
+
+  <div style="display: flex; flex-direction: column; gap: 1.5rem; padding: 1rem 0;">
+
+    <!-- Infos générales -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+
+      <p-select
+        [options]="clientOptions()"
+        [ngModel]="devisSelectionne().idClient"
+        (ngModelChange)="mettreAJourChamp('idClient', $event)"
+        placeholder="Client" />
+
+      <p-select
+        [options]="prestationOptions()"
+        [ngModel]="devisSelectionne().idPrestation"
+        (ngModelChange)="mettreAJourChamp('idPrestation', $event)"
+        placeholder="Prestation" />
+
+      <p-select
+        [options]="statutOptions"
+        [ngModel]="devisSelectionne().statut"
+        (ngModelChange)="mettreAJourChamp('statut', $event)"
+        placeholder="Statut" />
+
+    </div>
+
+    <p-divider />
+
+    <!-- Articles disponibles + Lignes devis -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+
+      <!-- Articles disponibles -->
+      <div>
+        <h4 style="margin-bottom: 0.75rem; color: #9ca3af;">Articles disponibles</h4>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 300px; overflow-y: auto;">
+          @for (article of articlesDisponibles(); track article.idArticle) {
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; background: #1e1e2e; border-radius: 8px; border: 1px solid #ffffff10;">
+              <div>
+                <div style="color: white; font-size: 0.9rem; font-weight: 500;">{{ article.nom }}</div>
+                <div style="color: #6b7280; font-size: 0.75rem;">{{ article.prixUnitaire | currency:'XAF':'symbol':'1.0-0' }}</div>
+              </div>
+              <p-button icon="pi pi-plus" severity="success" [rounded]="true" [text]="true" (onClick)="ajouterArticle(article)" />
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Lignes du devis -->
+      <div>
+        <h4 style="margin-bottom: 0.75rem; color: #9ca3af;">Lignes du devis</h4>
+        @if (lignesEnCours().length === 0) {
+          <div style="color: #6b7280; font-size: 0.85rem; text-align: center; padding: 2rem;">
+            Aucun article ajouté
+          </div>
+        }
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 300px; overflow-y: auto;">
+          @for (ligne of lignesEnCours(); track ligne.idArticle) {
+            <div style="padding: 0.75rem; background: #1e1e2e; border-radius: 8px; border: 1px solid #ffffff10;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span style="color: white; font-size: 0.9rem; font-weight: 500;">{{ ligne.nom }}</span>
+                <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [text]="true" (onClick)="supprimerLigne(ligne.idArticle)" />
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <p-inputNumber
+                  [ngModel]="ligne.quantite"
+                  (ngModelChange)="modifierQuantite(ligne.idArticle, $event)"
+                  [min]="1"
+                  [showButtons]="true"
+                  [style]="{ width: '120px' }" />
+                <span style="color: #22c55e; font-weight: 600;">
+                  {{ ligne.sousTotal | currency:'XAF':'symbol':'1.0-0' }}
+                </span>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Total -->
+        @if (lignesEnCours().length > 0) {
+          <div style="margin-top: 1rem; padding: 0.75rem; background: #6366f120; border-radius: 8px; border: 1px solid #6366f140; display: flex; justify-content: space-between; align-items: center;">
+            <span style="color: white; font-weight: 600;">Total</span>
+            <span style="color: #818cf8; font-size: 1.2rem; font-weight: 700;">
+              {{ montantTotal() | currency:'XAF':'symbol':'1.0-0' }}
+            </span>
+          </div>
+        }
+      </div>
+
+    </div>
+
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Annuler" severity="secondary" (onClick)="dialogVisible.set(false)" />
+    <p-button label="Sauvegarder" (onClick)="sauvegarder()" />
+  </ng-template>
+
+</p-dialog>

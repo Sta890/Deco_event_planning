@@ -1,0 +1,150 @@
+.demande-devis {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.form-header {
+  margin-bottom: 2rem;
+}
+
+.form-title {
+  color: white;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.form-subtitle {
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-section {
+  background: #13151e;
+  border: 1px solid #ffffff10;
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+
+.section-title {
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-title i {
+  color: #f472b6;
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.field label {
+  color: #9ca3af;
+  font-size: 0.85rem;
+}
+
+.field input,
+.field p-select,
+.field p-datepicker {
+  width: 100%;
+}
+
+.required {
+  color: #f472b6;
+}
+
+.full-width {
+  margin-bottom: 1.5rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.75rem;
+  background: #f472b6;
+  color: white;
+  text-decoration: none;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background: #ec4899;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.75rem;
+  background: transparent;
+  color: #9ca3af;
+  text-decoration: none;
+  border-radius: 10px;
+  border: 1px solid #ffffff20;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #ffffff10;
+  color: white;
+}
+
+/* ===== CONFIRMATION ===== */
+.confirmation {
+  text-align: center;
+  padding: 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.confirmation-icon {
+  font-size: 4rem;
+}
+
+.confirmation-titre {
+  color: white;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.confirmation-msg {
+  color: #9ca3af;
+  font-size: 1rem;
+  max-width: 400px;
+  line-height: 1.6;
+}

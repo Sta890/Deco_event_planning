@@ -1,0 +1,75 @@
+<div style="margin-bottom: 1rem;">
+  <p-button label="Générer une facture" icon="pi pi-plus" (onClick)="ouvrirDialog()" />
+</div>
+
+<p-table [value]="factures()" [paginator]="true" [rows]="5">
+
+  <ng-template pTemplate="header">
+    <tr>
+      <th>ID</th>
+      <th>Date</th>
+      <th>Montant Total</th>
+      <th>Statut</th>
+      <th>ID Devis</th>
+      <th>Actions</th>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-facture>
+    <tr>
+      <td>{{ facture.idFacture }}</td>
+      <td>{{ facture.dateFacture | date:'dd/MM/yyyy' }}</td>
+      <td>{{ facture.montantTotal | currency:'XAF':'symbol':'1.0-0' }}</td>
+      <td>
+        <p-tag [value]="facture.statut" [severity]="getCouleurStatut(facture.statut)" />
+      </td>
+      <td>{{ facture.idDevis }}</td>
+      <td style="display: flex; gap: 0.5rem;">
+        <p-button icon="pi pi-pencil" severity="info" (onClick)="modifierFacture(facture)" />
+        <p-button icon="pi pi-trash" severity="danger" (onClick)="supprimerFacture(facture.idFacture)" />
+      </td>
+    </tr>
+  </ng-template>
+
+</p-table>
+
+<p-dialog
+  [visible]="dialogVisible()"
+  (visibleChange)="dialogVisible.set($event)"
+  header="Facture"
+  [modal]="true"
+  [style]="{ width: '450px' }">
+
+  <div style="display: flex; flex-direction: column; gap: 1rem; padding: 1rem 0;">
+
+    <p-datepicker
+      [ngModel]="factureSelectionnee().dateFacture"
+      (ngModelChange)="mettreAJourChamp('dateFacture', $event)"
+      dateFormat="dd/mm/yy"
+      placeholder="Date de la facture" />
+
+    <p-inputNumber
+      [ngModel]="factureSelectionnee().montantTotal"
+      (ngModelChange)="mettreAJourChamp('montantTotal', $event)"
+      placeholder="Montant Total"
+      prefix="XAF " />
+
+    <p-select
+      [options]="statutOptions"
+      [ngModel]="factureSelectionnee().statut"
+      (ngModelChange)="mettreAJourChamp('statut', $event)"
+      placeholder="Statut" />
+
+    <p-inputNumber
+      [ngModel]="factureSelectionnee().idDevis"
+      (ngModelChange)="mettreAJourChamp('idDevis', $event)"
+      placeholder="ID Devis" />
+
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Annuler" severity="secondary" (onClick)="dialogVisible.set(false)" />
+    <p-button label="Sauvegarder" (onClick)="sauvegarder()" />
+  </ng-template>
+
+</p-dialog>

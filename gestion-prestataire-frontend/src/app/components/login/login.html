@@ -1,0 +1,75 @@
+<div class="login-wrapper">
+
+  <div class="login-card">
+
+    <!-- Logo -->
+    <div class="login-logo">
+      <i class="pi pi-receipt"></i>
+      <h1>FacturePro</h1>
+    </div>
+
+    <p class="login-subtitle">Connectez-vous à votre espace</p>
+
+    <!-- Erreur -->
+    @if (erreur()) {
+      <p-message severity="error" [text]="erreur()" />
+    }
+
+    <!-- Formulaire -->
+    <div class="login-form">
+
+      <div class="field">
+        <label>Email</label>
+        <input
+          pInputText
+          type="email"
+          placeholder="votre@email.cm"
+          [ngModel]="email()"
+          (ngModelChange)="email.set($event)" />
+      </div>
+
+      <div class="field">
+        <label>Mot de passe</label>
+        <p-password
+          [ngModel]="motDePasse()"
+          (ngModelChange)="motDePasse.set($event)"
+          placeholder="••••••••"
+          [feedback]="false"
+          [toggleMask]="true" />
+      </div>
+
+     <!-- Erreur -->
+     @if (erreur()) {
+  <p-message severity="error" [text]="erreur()" />
+}
+
+<!-- Bouton connecter -->
+<p-button
+  label="Se connecter"
+  icon="pi pi-sign-in"
+  styleClass="login-btn"
+  [loading]="chargement()"
+  (onClick)="seConnecter()" />
+
+    </div>
+
+    <!-- Aide -->
+    <div class="login-hint">
+      <p>👤 Admin : admin@facturepro.cm</p>
+      <p>👤 Prestataire : decorateur@facturepro.cm</p>
+      <p>👤 Client : client@facturepro.cm</p>
+      <p>🔑 Mot de passe : 1234</p>
+    </div>
+    <!-- Ajoute en dessous du login-hint -->
+<div style="text-align: center; margin-top: 0.5rem;">
+  <span style="color: #6b7280; font-size: 0.875rem;">
+    Pas encore de compte ? 
+    <a routerLink="/inscription" style="color: #6366f1; text-decoration: none; font-weight: 600;">
+      S'inscrire
+    </a>
+  </span>
+</div>
+
+  </div>
+
+</div>
