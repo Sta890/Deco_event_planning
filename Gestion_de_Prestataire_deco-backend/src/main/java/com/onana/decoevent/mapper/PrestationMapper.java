@@ -1,5 +1,5 @@
 package com.onana.decoevent.mapper;
-import com.onana.decoevent.dto.reponse.PrestationResponse;
+import com.onana.decoevent.dto.response.PrestationResponse;
 import com.onana.decoevent.dto.request.PrestationRequest;
 import com.onana.decoevent.models.Client;
 import com.onana.decoevent.models.Prestation;

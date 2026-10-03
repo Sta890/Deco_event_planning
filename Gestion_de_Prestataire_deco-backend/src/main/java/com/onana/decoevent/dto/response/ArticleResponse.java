@@ -1,4 +1,4 @@
-package com.onana.decoevent.dto.reponse;
+package com.onana.decoevent.dto.response;
 
 
 
@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -16,6 +18,6 @@ public class ArticleResponse {
     private Long id;
     private String nom;
     private String description;
-    private Double prixUnitaire;
+    private BigDecimal prixUnitaire;
     private TypeEvenement typeEvenement;
 }

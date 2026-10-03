@@ -1,8 +1,10 @@
-package com.onana.decoevent.dto.reponse;
+package com.onana.decoevent.dto.response;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 
 @Data
 @Builder
@@ -13,6 +15,6 @@ public class DashboardResponse {
     private Long totalPrestations;
     private Long devisEnAttente;
     private Long facturesEnRetard;
-    private Double chiffreAffaires;
+    private BigDecimal chiffreAffaires;
     private Long tauxConversion;
 }

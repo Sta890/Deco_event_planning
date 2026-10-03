@@ -4,7 +4,7 @@ spring:
 
 app:
   jwt:
-    secret: decoevent_secret_key_2026_very_long_and_secure
+    secret: ${JWT_SECRET:decoevent_secret_key_2026_very_long_and_secure}
     expiration: 86400000
 
 server:

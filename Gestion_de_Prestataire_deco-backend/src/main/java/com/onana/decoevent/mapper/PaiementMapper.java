@@ -1,6 +1,6 @@
 package com.onana.decoevent.mapper;
 
-import com.onana.decoevent.dto.reponse.PaiementResponse;
+import com.onana.decoevent.dto.response.PaiementResponse;
 import com.onana.decoevent.dto.request.PaiementRequest;
 import com.onana.decoevent.models.Facture;
 import com.onana.decoevent.models.Paiement;

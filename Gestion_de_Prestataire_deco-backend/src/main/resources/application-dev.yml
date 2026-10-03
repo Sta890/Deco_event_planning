@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/decoevent?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
-    username: root
-    password:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/decoevent?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:1234}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -14,9 +14,9 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
 
-  web:
-    cors:
-      allowed-origins: http://localhost:4200
+app:
+  cors:
+    allowed-origins: ${CORS_ORIGIN:http://localhost:4200}
 
 springdoc:
   swagger-ui:

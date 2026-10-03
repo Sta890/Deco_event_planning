@@ -1,11 +1,11 @@
 package com.onana.decoevent.controller;
-import com.onana.decoevent.dto.reponse.AuthResponse;
+import com.onana.decoevent.dto.response.AuthResponse;
 import com.onana.decoevent.dto.request.InscriptionRequest;
 import com.onana.decoevent.dto.request.LoginRequest;
 import com.onana.decoevent.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
+import com.onana.decoevent.exceptions.BadRequestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

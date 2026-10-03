@@ -1,5 +1,5 @@
 package com.onana.decoevent.mapper;
-import com.onana.decoevent.dto.reponse.HistoriqueResponse;
+import com.onana.decoevent.dto.response.HistoriqueResponse;
 import com.onana.decoevent.models.Historique;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

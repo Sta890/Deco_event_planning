@@ -4,6 +4,8 @@ import com.onana.decoevent.enums.TypeEvenement;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "articles")
 @Getter
@@ -18,8 +20,8 @@ public class Article extends BaseEntity {
 
     private String description;
 
-    @Column(nullable = false)
-    private Double prixUnitaire;
+    @Column(nullable = false, precision = 19, scale = 2)
+    private BigDecimal prixUnitaire;
     @Enumerated(EnumType.STRING)
     private TypeEvenement typeEvenement;
 

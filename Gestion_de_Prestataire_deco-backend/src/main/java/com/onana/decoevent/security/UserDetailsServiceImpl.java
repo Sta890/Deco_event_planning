@@ -2,7 +2,7 @@ package com.onana.decoevent.security;
 
 import com.onana.decoevent.models.Utilisateur;
 
-import com.onana.decoevent.repostories.UtilisateurRepository;
+import com.onana.decoevent.repositories.UtilisateurRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;

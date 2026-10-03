@@ -1,5 +1,5 @@
 package com.onana.decoevent.mapper;
-import com.onana.decoevent.dto.reponse.FactureResponse;
+import com.onana.decoevent.dto.response.FactureResponse;
 import com.onana.decoevent.models.Facture;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

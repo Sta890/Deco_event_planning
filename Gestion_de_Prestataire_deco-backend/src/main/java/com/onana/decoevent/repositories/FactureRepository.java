@@ -1,4 +1,4 @@
-package com.onana.decoevent.repostories;
+package com.onana.decoevent.repositories;
 
 import com.onana.decoevent.models.Facture;
 import com.onana.decoevent.enums.StatutFacture;
@@ -13,4 +13,5 @@ public interface FactureRepository extends JpaRepository<Facture, Long> {
     Optional<Facture> findByDevisId(Long devisId);
     List<Facture> findByStatutFacture(StatutFacture statutFacture);
     List<Facture> findByDevisPrestationClientId(Long clientId);
+    List<Facture> findByDevisPrestationClientEmail(String email);
 }

@@ -3,6 +3,7 @@ import com.onana.decoevent.enums.StatutFacture;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -17,8 +18,8 @@ public class Facture extends BaseEntity {
     @Column(nullable = false)
     private LocalDate dateFacture;
 
-    @Column(nullable = false)
-    private Double montantTotal;
+    @Column(nullable = false, precision = 19, scale = 2)
+    private BigDecimal montantTotal;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

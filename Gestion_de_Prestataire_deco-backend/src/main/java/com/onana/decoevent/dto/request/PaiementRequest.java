@@ -1,10 +1,12 @@
 package com.onana.decoevent.dto.request;
 
 import com.onana.decoevent.enums.ModePaiement;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -14,8 +16,9 @@ public class PaiementRequest {
     private Long factureId;
 
     @NotNull(message = "Montant obligatoire")
-    @Positive(message = "Montant doit être positif")
-    private Double montant;
+    @DecimalMin(value = "0.0", inclusive = false, message = "Montant doit être positif")
+    @Digits(integer = 17, fraction = 2, message = "Montant : maximum 2 décimales")
+    private BigDecimal montant;
 
     @NotNull(message = "Mode paiement obligatoire")
     private ModePaiement modePaiement;

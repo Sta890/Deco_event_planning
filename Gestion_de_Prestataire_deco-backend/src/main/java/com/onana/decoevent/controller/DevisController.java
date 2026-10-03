@@ -1,7 +1,8 @@
 package com.onana.decoevent.controller;
 import com.onana.decoevent.dto.request.DevisRequest;
+import com.onana.decoevent.dto.request.LigneDevisRequest;
 import com.onana.decoevent.enums.StatutDevis;
-import com.onana.decoevent.dto.reponse.DevisResponse;
+import com.onana.decoevent.dto.response.DevisResponse;
 import com.onana.decoevent.service.DevisService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,11 @@ public class DevisController {
     @PostMapping
     public ResponseEntity<DevisResponse> create(@Valid @RequestBody DevisRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(devisService.create(request));
+    }
+
+    @PutMapping("/{id}/lignes")
+    public ResponseEntity<DevisResponse> updateLignes(@PathVariable Long id, @Valid @RequestBody List<LigneDevisRequest> lignes) {
+        return ResponseEntity.ok(devisService.updateLignes(id, lignes));
     }
 
     @PutMapping("/{id}/statut")

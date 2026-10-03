@@ -1,5 +1,5 @@
 package com.onana.decoevent.controller;
-import com.onana.decoevent.dto.reponse.DashboardResponse;
+import com.onana.decoevent.dto.response.DashboardResponse;
 import com.onana.decoevent.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

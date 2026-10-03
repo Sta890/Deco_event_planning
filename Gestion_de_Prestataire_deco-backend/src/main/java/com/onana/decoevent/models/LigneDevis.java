@@ -5,6 +5,8 @@ package com.onana.decoevent.models;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "lignes_devis")
 @Getter
@@ -25,9 +27,9 @@ public class LigneDevis extends BaseEntity {
     @Column(nullable = false)
     private Integer quantite;
 
-    @Column(nullable = false)
-    private Double prixUnitaire;
+    @Column(nullable = false, precision = 19, scale = 2)
+    private BigDecimal prixUnitaire;
 
-    @Column(nullable = false)
-    private Double sousTotal;
+    @Column(nullable = false, precision = 19, scale = 2)
+    private BigDecimal sousTotal;
 }

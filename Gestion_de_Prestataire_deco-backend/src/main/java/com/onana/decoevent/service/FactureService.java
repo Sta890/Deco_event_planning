@@ -1,16 +1,16 @@
 package com.onana.decoevent.service;
-import com.onana.decoevent.dto.reponse.FactureResponse;
+import com.onana.decoevent.dto.response.FactureResponse;
 import com.onana.decoevent.enums.StatutDevis;
 import com.onana.decoevent.enums.StatutFacture;
 import com.onana.decoevent.exceptions.ResourceNotFoundException;
 import com.onana.decoevent.mapper.FactureMapper;
 import com.onana.decoevent.models.Devis;
 import com.onana.decoevent.models.Facture;
-import com.onana.decoevent.repostories.DevisRepository;
-import com.onana.decoevent.repostories.FactureRepository;
+import com.onana.decoevent.repositories.DevisRepository;
+import com.onana.decoevent.repositories.FactureRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
+import com.onana.decoevent.exceptions.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,6 +48,12 @@ public class FactureService {
         return factureMapper.toResponseList(factureRepository.findByDevisPrestationClientId(clientId));
     }
 
+    @Transactional(readOnly = true)
+    public List<FactureResponse> findByClientEmail(String email) {
+        log.info("Récupération des factures du client (email): {}", email);
+        return factureMapper.toResponseList(factureRepository.findByDevisPrestationClientEmail(email));
+    }
+
     @Transactional
     public FactureResponse genererDepuisDevis(Long devisId) throws BadRequestException {
         log.info("Génération facture depuis devis ID: {}", devisId);
@@ -80,10 +86,21 @@ public class FactureService {
     }
 
     @Transactional
-    public FactureResponse updateStatut(Long id, StatutFacture statut) {
+    public FactureResponse updateStatut(Long id, StatutFacture statut) throws BadRequestException {
         log.info("Mise à jour statut facture - ID: {}, Statut: {}", id, statut);
+
+        if (statut == StatutFacture.PAYE) {
+            log.warn("Echec mise à jour statut facture ID {} : PAYE ne peut pas être set manuellement", id);
+            throw new BadRequestException("Le statut PAYE est positionné automatiquement lors de l'enregistrement d'un paiement");
+        }
+
         Facture facture = factureRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Facture non trouvée avec l'id : " + id));
+
+        if (facture.getStatutFacture() == StatutFacture.PAYE) {
+            log.warn("Echec mise à jour statut facture ID {} : facture déjà payée", id);
+            throw new BadRequestException("Impossible de modifier le statut d'une facture déjà payée");
+        }
 
         facture.setStatutFacture(statut);
         facture = factureRepository.save(facture);

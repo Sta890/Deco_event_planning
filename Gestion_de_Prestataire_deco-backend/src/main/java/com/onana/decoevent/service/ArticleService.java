@@ -1,11 +1,11 @@
 package com.onana.decoevent.service;
-import com.onana.decoevent.dto.reponse.ArticleResponse;
+import com.onana.decoevent.dto.response.ArticleResponse;
 import com.onana.decoevent.dto.request.ArticleRequest;
 import com.onana.decoevent.enums.TypeEvenement;
 import com.onana.decoevent.exceptions.ResourceNotFoundException;
 import com.onana.decoevent.mapper.ArticleMapper;
 import com.onana.decoevent.models.Article;
-import com.onana.decoevent.repostories.ArticleRepository;
+import com.onana.decoevent.repositories.ArticleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

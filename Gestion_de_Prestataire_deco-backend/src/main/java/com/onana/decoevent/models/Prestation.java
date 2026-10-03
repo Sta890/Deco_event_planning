@@ -22,6 +22,7 @@ public class Prestation extends BaseEntity {
     @Column(nullable = false)
     private LocalDate dateEvenement;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TypeEvenement typeEvenement;
 

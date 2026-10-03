@@ -1,4 +1,4 @@
-package com.onana.decoevent.dto.reponse;
+package com.onana.decoevent.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,9 +11,11 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class HistoriqueResponse {
+public class ClientResponse {
     private Long id;
-    private String action;
-    private LocalDateTime dateAction;
-    private String utilisateurNom;
+    private String nom;
+    private String telephone;
+    private String adresse;
+    private String email;
+    private LocalDateTime createdAt;
 }

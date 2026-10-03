@@ -1,14 +1,15 @@
 package com.onana.decoevent.service;
 
-import com.onana.decoevent.dto.reponse.PrestationResponse;
+import com.onana.decoevent.dto.response.PrestationResponse;
+import com.onana.decoevent.dto.request.DemandeDevisRequest;
 import com.onana.decoevent.dto.request.PrestationRequest;
 import com.onana.decoevent.exceptions.ResourceNotFoundException;
 
 import com.onana.decoevent.mapper.PrestationMapper;
 import com.onana.decoevent.models.Client;
 import com.onana.decoevent.models.Prestation;
-import com.onana.decoevent.repostories.ClientRepository;
-import com.onana.decoevent.repostories.PrestationRepository;
+import com.onana.decoevent.repositories.ClientRepository;
+import com.onana.decoevent.repositories.PrestationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class PrestationService {
     private final ClientRepository clientRepository;
     private final PrestationMapper prestationMapper;
     private final HistoriqueService historiqueService;
+    private final DevisService devisService;
 
     @Transactional(readOnly = true)
     public List<PrestationResponse> findAll() {
@@ -59,6 +61,45 @@ public class PrestationService {
 
         log.info("Prestation créée avec succès - ID: {}, Type: {}", prestation.getId(), prestation.getTypeEvenement());
         historiqueService.enregistrer("Nouvelle prestation créée : " + prestation.getTypeEvenement() + " pour " + client.getNom());
+        return prestationMapper.toResponse(prestation);
+    }
+
+    @Transactional
+    public PrestationResponse creerDepuisDemande(DemandeDevisRequest dto) {
+        log.info("Demande de devis - Type: {}, Client: {}", dto.getTypeEvenement(), dto.getEmail());
+
+        Client client = clientRepository.findByEmail(dto.getEmail())
+                .orElseGet(() -> clientRepository.save(
+                        Client.builder()
+                                .nom(dto.getNom())
+                                .telephone(dto.getTelephone())
+                                .email(dto.getEmail())
+                                .build()
+                ));
+
+        StringBuilder description = new StringBuilder();
+        if (dto.getMessage() != null && !dto.getMessage().isBlank()) {
+            description.append(dto.getMessage());
+        }
+        if (dto.getNombrePersonnes() != null) {
+            if (description.length() > 0) {
+                description.append(" — ");
+            }
+            description.append(dto.getNombrePersonnes()).append(" personnes");
+        }
+
+        Prestation prestation = Prestation.builder()
+                .typeEvenement(dto.getTypeEvenement())
+                .dateEvenement(dto.getDateEvenement())
+                .lieu(dto.getLieu())
+                .description(description.toString())
+                .client(client)
+                .build();
+        prestation = prestationRepository.save(prestation);
+
+        log.info("Demande de devis enregistrée - Prestation ID: {}", prestation.getId());
+        historiqueService.enregistrer("Demande de devis reçue : " + dto.getTypeEvenement() + " pour " + client.getNom());
+        devisService.createDepuisPrestation(prestation);
         return prestationMapper.toResponse(prestation);
     }
 

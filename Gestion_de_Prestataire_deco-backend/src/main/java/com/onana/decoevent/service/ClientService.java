@@ -1,14 +1,14 @@
 package com.onana.decoevent.service;
 
-import com.onana.decoevent.dto.reponse.ClientResponse;
+import com.onana.decoevent.dto.response.ClientResponse;
 import com.onana.decoevent.dto.request.ClientRequest;
 import com.onana.decoevent.exceptions.ResourceNotFoundException;
 import com.onana.decoevent.mapper.ClientMapper;
 import com.onana.decoevent.models.Client;
-import com.onana.decoevent.repostories.ClientRepository;
+import com.onana.decoevent.repositories.ClientRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
+import com.onana.decoevent.exceptions.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

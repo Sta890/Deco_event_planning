@@ -1,4 +1,4 @@
-package com.onana.decoevent.repostories;
+package com.onana.decoevent.repositories;
 
 
 import com.onana.decoevent.models.Historique;

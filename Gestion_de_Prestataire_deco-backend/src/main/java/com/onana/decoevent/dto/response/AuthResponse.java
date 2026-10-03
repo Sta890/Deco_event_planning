@@ -1,4 +1,4 @@
-package com.onana.decoevent.dto.reponse;
+package com.onana.decoevent.dto.response;
 
 import com.onana.decoevent.enums.Role;
 import lombok.AllArgsConstructor;

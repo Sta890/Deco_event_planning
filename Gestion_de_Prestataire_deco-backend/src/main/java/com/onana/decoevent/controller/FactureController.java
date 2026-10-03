@@ -1,9 +1,9 @@
 package com.onana.decoevent.controller;
-import com.onana.decoevent.dto.reponse.FactureResponse;
+import com.onana.decoevent.dto.response.FactureResponse;
 import com.onana.decoevent.enums.StatutFacture;
 import com.onana.decoevent.service.FactureService;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
+import com.onana.decoevent.exceptions.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +38,7 @@ public class FactureController {
     }
 
     @PutMapping("/{id}/statut")
-    public ResponseEntity<FactureResponse> updateStatut(@PathVariable Long id, @RequestParam StatutFacture statut) {
+    public ResponseEntity<FactureResponse> updateStatut(@PathVariable Long id, @RequestParam StatutFacture statut) throws BadRequestException {
         return ResponseEntity.ok(factureService.updateStatut(id, statut));
     }
 

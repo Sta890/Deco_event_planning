@@ -1,10 +1,10 @@
 package com.onana.decoevent.controller;
-import com.onana.decoevent.dto.reponse.ClientResponse;
+import com.onana.decoevent.dto.response.ClientResponse;
 import com.onana.decoevent.dto.request.ClientRequest;
 import com.onana.decoevent.service.ClientService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
+import com.onana.decoevent.exceptions.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

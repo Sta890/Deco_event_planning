@@ -1,5 +1,5 @@
 package com.onana.decoevent.controller;
-import com.onana.decoevent.dto.reponse.HistoriqueResponse;
+import com.onana.decoevent.dto.response.HistoriqueResponse;
 import com.onana.decoevent.service.HistoriqueService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

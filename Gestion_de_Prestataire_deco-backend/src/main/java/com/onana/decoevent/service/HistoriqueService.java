@@ -1,8 +1,8 @@
 package com.onana.decoevent.service;
 import com.onana.decoevent.models.Historique;
-import com.onana.decoevent.dto.reponse.HistoriqueResponse;
+import com.onana.decoevent.dto.response.HistoriqueResponse;
 import com.onana.decoevent.mapper.HistoriqueMapper;
-import com.onana.decoevent.repostories.HistoriqueRepository;
+import com.onana.decoevent.repositories.HistoriqueRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

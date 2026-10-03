@@ -1,8 +1,8 @@
-package com.onana.decoevent.dto.reponse;
+package com.onana.decoevent.dto.response;
 
 
 
-import com.onana.decoevent.enums.ModePaiement;
+import com.onana.decoevent.enums.TypeEvenement;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,12 +15,13 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaiementResponse {
+public class PrestationResponse {
     private Long id;
-    private LocalDate datePaiement;
-    private Double montant;
-    private ModePaiement modePaiement;
-    private Long factureId;
+    private TypeEvenement typeEvenement;
+    private LocalDate dateEvenement;
+    private String lieu;
+    private String description;
+    private Long clientId;
     private String clientNom;
     private LocalDateTime createdAt;
 }

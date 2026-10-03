@@ -1,4 +1,4 @@
-package com.onana.decoevent.repostories;
+package com.onana.decoevent.repositories;
 import com.onana.decoevent.models.Panier;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;

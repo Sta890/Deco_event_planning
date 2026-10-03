@@ -1,9 +1,11 @@
-package com.onana.decoevent.dto.reponse;
+package com.onana.decoevent.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 
 @Data
 @Builder
@@ -14,6 +16,6 @@ public class LigneDevisResponse {
     private Long articleId;
     private String articleNom;
     private Integer quantite;
-    private Double prixUnitaire;
-    private Double sousTotal;
+    private BigDecimal prixUnitaire;
+    private BigDecimal sousTotal;
 }

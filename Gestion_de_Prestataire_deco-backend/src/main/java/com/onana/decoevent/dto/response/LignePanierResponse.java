@@ -1,5 +1,7 @@
-package com.onana.decoevent.dto.reponse;
+package com.onana.decoevent.dto.response;
 import lombok.*;
+
+import java.math.BigDecimal;
 
 @Data
 @Builder
@@ -9,8 +11,8 @@ public class LignePanierResponse {
     private Long id;
     private Long articleId;
     private String articleNom;
-    private Double prixUnitaire;
+    private BigDecimal prixUnitaire;
     private Integer quantite;
-    private Double sousTotal;
+    private BigDecimal sousTotal;
     private String typeEvenement;
 }

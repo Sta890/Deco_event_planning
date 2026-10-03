@@ -1,12 +1,16 @@
 package com.onana.decoevent.service;
-import com.onana.decoevent.dto.reponse.DashboardResponse;
+import com.onana.decoevent.dto.response.DashboardResponse;
 import com.onana.decoevent.enums.StatutDevis;
 import com.onana.decoevent.enums.StatutFacture;
-import com.onana.decoevent.repostories.*;
+import com.onana.decoevent.models.Paiement;
+import com.onana.decoevent.repositories.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -28,14 +32,15 @@ public class DashboardService {
         long devisEnAttente = devisRepository.findByStatutDevis(StatutDevis.EN_ATTENTE).size();
         long facturesEnRetard = factureRepository.findByStatutFacture(StatutFacture.EN_RETARD).size();
 
-        double chiffreAffaires = paiementRepository.findAll()
+        BigDecimal chiffreAffaires = paiementRepository.findAll()
                 .stream()
-                .mapToDouble(p -> p.getMontant())
-                .sum();
+                .map(Paiement::getMontant)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         long totalDevis = devisRepository.count();
         long devisValides = devisRepository.findByStatutDevis(StatutDevis.VALIDE).size();
-        long tauxConversion = totalDevis > 0 ? (devisValides * 100) / totalDevis : 0;
+        long tauxConversion = totalDevis > 0 ? Math.round((devisValides * 100.0) / totalDevis) : 0;
 
         log.info("Stats - Clients: {}, Prestations: {}, DevisEnAttente: {}, CA: {}",
                 totalClients, totalPrestations, devisEnAttente, chiffreAffaires);

@@ -6,6 +6,7 @@ import com.onana.decoevent.enums.ModePaiement;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -20,8 +21,8 @@ public class Paiement extends BaseEntity {
     @Column(nullable = false)
     private LocalDate datePaiement;
 
-    @Column(nullable = false)
-    private Double montant;
+    @Column(nullable = false, precision = 19, scale = 2)
+    private BigDecimal montant;
 
     @OneToOne
     @JoinColumn(name = "facture_id", nullable = false)

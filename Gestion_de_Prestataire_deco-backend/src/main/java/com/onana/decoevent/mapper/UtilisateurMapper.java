@@ -1,5 +1,5 @@
 package com.onana.decoevent.mapper;
-import com.onana.decoevent.dto.reponse.AuthResponse;
+import com.onana.decoevent.dto.response.AuthResponse;
 import com.onana.decoevent.dto.request.InscriptionRequest;
 import com.onana.decoevent.models.Utilisateur;
 import org.mapstruct.Mapper;

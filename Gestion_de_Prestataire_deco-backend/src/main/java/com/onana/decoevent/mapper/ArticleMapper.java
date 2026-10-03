@@ -1,5 +1,5 @@
 package com.onana.decoevent.mapper;
-import com.onana.decoevent.dto.reponse.ArticleResponse;
+import com.onana.decoevent.dto.response.ArticleResponse;
 import com.onana.decoevent.dto.request.ArticleRequest;
 import com.onana.decoevent.models.Article;
 import org.mapstruct.Mapper;

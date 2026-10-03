@@ -1,19 +1,20 @@
 package com.onana.decoevent.service;
 
-import com.onana.decoevent.dto.reponse.PanierResponse;
+import com.onana.decoevent.dto.response.PanierResponse;
 import com.onana.decoevent.dto.request.AjouterArticlePanierRequest;
 
 import com.onana.decoevent.exceptions.ResourceNotFoundException;
 import com.onana.decoevent.mapper.PanierMapper;
 import com.onana.decoevent.models.*;
-import com.onana.decoevent.repostories.ArticleRepository;
-import com.onana.decoevent.repostories.LignePanierRepository;
-import com.onana.decoevent.repostories.PanierRepository;
-import com.onana.decoevent.repostories.UtilisateurRepository;
+import com.onana.decoevent.repositories.ArticleRepository;
+import com.onana.decoevent.repositories.LignePanierRepository;
+import com.onana.decoevent.repositories.PanierRepository;
+import com.onana.decoevent.repositories.UtilisateurRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @Service
@@ -26,6 +27,7 @@ public class PanierService {
     private final UtilisateurRepository utilisateurRepository;
     private final PanierMapper panierMapper;
 
+    @Transactional
     public PanierResponse getPanier(Long utilisateurId) {
         Panier panier = panierRepository.findByUtilisateurId(utilisateurId)
                 .orElseGet(() -> creerPanier(utilisateurId));
@@ -47,13 +49,13 @@ public class PanierService {
         if (existante.isPresent()) {
             LignePanier ligne = existante.get();
             ligne.setQuantite(ligne.getQuantite() + request.getQuantite());
-            ligne.setSousTotal(ligne.getQuantite() * article.getPrixUnitaire());
+            ligne.setSousTotal(article.getPrixUnitaire().multiply(BigDecimal.valueOf(ligne.getQuantite())));
         } else {
             LignePanier nouvelleLigne = LignePanier.builder()
-                    .panier(panier) // ⚠️ Assurez-vous que cette ligne est présente
+                    .panier(panier)
                     .article(article)
                     .quantite(request.getQuantite())
-                    .sousTotal(request.getQuantite() * article.getPrixUnitaire())
+                    .sousTotal(article.getPrixUnitaire().multiply(BigDecimal.valueOf(request.getQuantite())))
                     .build();
 
             panier.getLignes().add(nouvelleLigne);
@@ -68,6 +70,7 @@ public class PanierService {
 
         return panierMapper.toPanierResponse(panierComplet);
     }
+
     @Transactional
     public PanierResponse modifierQuantite(Long utilisateurId, Long ligneId, Integer quantite) {
         Panier panier = panierRepository.findByUtilisateurId(utilisateurId)
@@ -76,12 +79,16 @@ public class PanierService {
         LignePanier ligne = lignePanierRepository.findById(ligneId)
                 .orElseThrow(() -> new ResourceNotFoundException("Ligne non trouvée avec l'id : " + ligneId));
 
+        if (!ligne.getPanier().getId().equals(panier.getId())) {
+            throw new ResourceNotFoundException("Ligne non trouvée avec l'id : " + ligneId);
+        }
+
         if (quantite <= 0) {
             panier.getLignes().remove(ligne);
             lignePanierRepository.delete(ligne);
         } else {
             ligne.setQuantite(quantite);
-            ligne.setSousTotal(quantite * ligne.getArticle().getPrixUnitaire());
+            ligne.setSousTotal(ligne.getArticle().getPrixUnitaire().multiply(BigDecimal.valueOf(quantite)));
             lignePanierRepository.save(ligne);
         }
 
@@ -95,6 +102,10 @@ public class PanierService {
 
         LignePanier ligne = lignePanierRepository.findById(ligneId)
                 .orElseThrow(() -> new ResourceNotFoundException("Ligne non trouvée avec l'id : " + ligneId));
+
+        if (!ligne.getPanier().getId().equals(panier.getId())) {
+            throw new ResourceNotFoundException("Ligne non trouvée avec l'id : " + ligneId);
+        }
 
         panier.getLignes().remove(ligne);
         lignePanierRepository.delete(ligne);

@@ -1,7 +1,8 @@
-package com.onana.decoevent.dto.reponse;
+package com.onana.decoevent.dto.response;
 
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -12,5 +13,5 @@ public class PanierResponse {
     private Long id;
     private Long utilisateurId;
     private List<LignePanierResponse> lignes;
-    private Double total;
+    private BigDecimal total;
 }

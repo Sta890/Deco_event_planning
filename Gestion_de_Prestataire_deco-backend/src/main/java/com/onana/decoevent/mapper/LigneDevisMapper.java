@@ -1,5 +1,5 @@
 package com.onana.decoevent.mapper;
-import com.onana.decoevent.dto.reponse.LigneDevisResponse;
+import com.onana.decoevent.dto.response.LigneDevisResponse;
 import com.onana.decoevent.models.Article;
 import com.onana.decoevent.models.Devis;
 import com.onana.decoevent.models.LigneDevis;
@@ -20,6 +20,6 @@ public interface LigneDevisMapper {
     @Mapping(source = "devis", target = "devis")
     @Mapping(source = "quantite", target = "quantite")
     @Mapping(target = "prixUnitaire", expression = "java(article.getPrixUnitaire())")
-    @Mapping(target = "sousTotal", expression = "java(article.getPrixUnitaire() * quantite)")
+    @Mapping(target = "sousTotal", expression = "java(article.getPrixUnitaire().multiply(java.math.BigDecimal.valueOf(quantite)))")
     LigneDevis toEntity(Article article, Devis devis, Integer quantite);
 }

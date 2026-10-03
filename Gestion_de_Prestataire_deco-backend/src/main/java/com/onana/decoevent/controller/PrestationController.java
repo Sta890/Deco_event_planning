@@ -1,5 +1,5 @@
 package com.onana.decoevent.controller;
-import com.onana.decoevent.dto.reponse.PrestationResponse;
+import com.onana.decoevent.dto.response.PrestationResponse;
 import com.onana.decoevent.dto.request.PrestationRequest;
 import com.onana.decoevent.service.PrestationService;
 import jakarta.validation.Valid;

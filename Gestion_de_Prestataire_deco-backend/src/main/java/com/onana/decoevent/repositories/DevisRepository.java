@@ -1,4 +1,4 @@
-package com.onana.decoevent.repostories;
+package com.onana.decoevent.repositories;
 
 
 
@@ -14,4 +14,5 @@ public interface DevisRepository extends JpaRepository<Devis, Long> {
     List<Devis> findByPrestationId(Long prestationId);
     List<Devis> findByStatutDevis(StatutDevis statutDevis);
     List<Devis> findByPrestationClientId(Long clientId);
+    List<Devis> findByPrestationClientEmail(String email);
 }
