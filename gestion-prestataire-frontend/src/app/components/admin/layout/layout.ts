@@ -14,13 +14,7 @@ import { AuthService } from '../../../services/auth';
 export class AdminLayoutComponent {
 
   menuItems = [
-    { label: 'Clients', route: '/prestataire/clients', icon: 'pi pi-users' },
-    { label: 'Prestations', route: '/prestataire/prestations', icon: 'pi pi-sparkles' },
-    { label: 'Articles', route: '/prestataire/articles', icon: 'pi pi-box' },
-    { label: 'Devis', route: '/prestataire/devis', icon: 'pi pi-file' },
-    { label: 'Factures', route: '/prestataire/factures', icon: 'pi pi-file-edit' },
-    { label: 'Paiements', route: '/prestataire/paiements', icon: 'pi pi-credit-card' },
-    { label: 'Historique', route: '/prestataire/historique', icon: 'pi pi-history' },
+    { label: 'Dashboard', route: '/admin/dashboard', icon: 'pi pi-chart-bar' },
   ];
 
   constructor(private authService: AuthService) {}

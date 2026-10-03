@@ -1,11 +1,11 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { Client } from '../../models/client.model';
+import { ClientApiService, ClientRequest, ClientResponse } from '../../services/api/client-api';
 
 @Component({
   selector: 'app-clients',
@@ -14,45 +14,68 @@ import { Client } from '../../models/client.model';
   templateUrl: './clients.html',
   styleUrl: './clients.css'
 })
-export class ClientsComponent {
+export class ClientsComponent implements OnInit {
 
-  clients = signal<Client[]>([
-    { idClient: 1, nom: 'Hôtel Renaissance', telephone: '655000001', adresse: 'Yaoundé', email: 'hotel@renaissance.cm' },
-    { idClient: 2, nom: 'Mme. Sarah', telephone: '699000002', adresse: 'Douala', email: 'sarah@salon.cm' },
-    { idClient: 3, nom: 'Boutique Éclat', telephone: '677000003', adresse: 'Bafoussam', email: 'eclat@boutique.cm' },
-  ]);
-
+  clients = signal<ClientResponse[]>([]);
   dialogVisible = signal(false);
 
-  clientSelectionne = signal<Client>({
-    idClient: 0, nom: '', telephone: '', adresse: '', email: ''
+  clientSelectionne = signal<ClientResponse>({
+    id: 0, nom: '', telephone: '', adresse: '', email: '', createdAt: ''
   });
 
+  constructor(private clientApiService: ClientApiService) {}
+
+  ngOnInit(): void {
+    this.chargerClients();
+  }
+
+  chargerClients() {
+    this.clientApiService.findAll().subscribe({
+      next: (data) => this.clients.set(data),
+      error: (err) => console.error('Erreur chargement clients', err)
+    });
+  }
+
   ouvrirDialog() {
-    this.clientSelectionne.set({ idClient: 0, nom: '', telephone: '', adresse: '', email: '' });
+    this.clientSelectionne.set({ id: 0, nom: '', telephone: '', adresse: '', email: '', createdAt: '' });
     this.dialogVisible.set(true);
   }
 
-  modifierClient(client: Client) {
+  modifierClient(client: ClientResponse) {
     this.clientSelectionne.set({ ...client });
     this.dialogVisible.set(true);
   }
 
   supprimerClient(id: number) {
-    this.clients.update(list => list.filter(c => c.idClient !== id));
+    this.clientApiService.delete(id).subscribe({
+      next: () => this.chargerClients(),
+      error: (err) => console.error('Erreur suppression client', err)
+    });
+  }
+
+  mettreAJourChamp(champ: keyof ClientResponse, valeur: string) {
+    this.clientSelectionne.update(c => ({ ...c, [champ]: valeur }));
   }
 
   sauvegarder() {
     const c = this.clientSelectionne();
-    if (c.idClient === 0) {
-      this.clients.update(list => [...list, { ...c, idClient: list.length + 1 }]);
-    } else {
-      this.clients.update(list => list.map(x => x.idClient === c.idClient ? { ...c } : x));
-    }
-    this.dialogVisible.set(false);
-  }
+    const request: ClientRequest = {
+      nom: c.nom,
+      telephone: c.telephone,
+      adresse: c.adresse,
+      email: c.email
+    };
 
-  mettreAJourChamp(champ: keyof Client, valeur: string) {
-    this.clientSelectionne.update(c => ({ ...c, [champ]: valeur }));
+    const requete = c.id === 0
+      ? this.clientApiService.create(request)
+      : this.clientApiService.update(c.id, request);
+
+    requete.subscribe({
+      next: () => {
+        this.dialogVisible.set(false);
+        this.chargerClients();
+      },
+      error: (err) => console.error('Erreur sauvegarde client', err)
+    });
   }
 }

@@ -31,7 +31,15 @@ export class LoginComponent {
     }
     this.chargement.set(true);
     this.erreur.set('');
-    this.authService.seConnecter(this.email(), this.motDePasse());
-    this.chargement.set(false);
+
+    this.authService.seConnecter(this.email(), this.motDePasse()).subscribe({
+      next: () => this.chargement.set(false),
+      error: (err) => {
+        this.chargement.set(false);
+        this.erreur.set(err.status === 401 || err.status === 400
+          ? 'Email ou mot de passe incorrect'
+          : 'Erreur de connexion. Réessayez !');
+      }
+    });
   }
 }

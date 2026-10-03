@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TagModule } from 'primeng/tag';
 import { AuthService } from '../../../services/auth';
-import { DevisApiService } from '../../../services/api/devis-api';
-import { FactureApiService } from '../../../services/api/facture-api';
+import { DevisApiService, DevisResponse } from '../../../services/api/devis-api';
+import { FactureApiService, FactureResponse } from '../../../services/api/facture-api';
+import { EnumLabelPipe } from '../../../shared/pipes/enum-label.pipe';
 
 @Component({
   selector: 'app-mon-compte',
   standalone: true,
-  imports: [CommonModule, RouterModule, TagModule],
+  imports: [CommonModule, RouterModule, TagModule, EnumLabelPipe],
   templateUrl: './mon-compte.html',
   styleUrl: './mon-compte.css'
 })
@@ -17,8 +18,8 @@ export class MonCompteComponent implements OnInit {
 
   ongletActif = signal<'devis' | 'factures'>('devis');
 
-  mesDevis = signal<any[]>([]);
-  mesFactures = signal<any[]>([]);
+  mesDevis = signal<DevisResponse[]>([]);
+  mesFactures = signal<FactureResponse[]>([]);
 
   constructor(
     private authService: AuthService,
@@ -27,21 +28,16 @@ export class MonCompteComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const user = this.authService.getUtilisateur();
-    if (user && user.id) {
-      this.chargerDonnees(user.id);
-    }
+    this.chargerDonnees();
   }
 
-  chargerDonnees(clientId: number): void {
-    // Appelle la méthode GET client de devis-api.ts
-    this.devisApiService.findByClientId(clientId).subscribe({
+  chargerDonnees(): void {
+    this.devisApiService.getMesDevis().subscribe({
       next: (data) => this.mesDevis.set(data),
       error: (err) => console.error('Erreur devis', err)
     });
 
-    // Appelle la méthode GET client de facture-api.ts
-    this.factureApiService.findByClientId(clientId).subscribe({
+    this.factureApiService.getMesFactures().subscribe({
       next: (data) => this.mesFactures.set(data),
       error: (err) => console.error('Erreur factures', err)
     });
@@ -53,9 +49,9 @@ export class MonCompteComponent implements OnInit {
 
   getCouleurStatut(statut: string) {
     switch (statut?.toUpperCase()) {
-      case 'VALIDE': case 'PAYE': case 'VALIDÉ': case 'PAYÉ': return 'success';
+      case 'VALIDE': case 'PAYE': return 'success';
       case 'EN_ATTENTE': return 'warn';
-      case 'REFUSE': case 'ANNULE': return 'danger';
+      case 'REFUSE': case 'EN_RETARD': return 'danger';
       default: return 'secondary';
     }
   }

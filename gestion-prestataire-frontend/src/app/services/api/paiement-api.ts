@@ -2,11 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { ModePaiement } from '../../shared/enums';
 
 export interface PaiementRequest {
   factureId: number;
   montant: number;
-  modePaiement: string;
+  /** Doit correspondre à l'enum Java ModePaiement (sérialisé en STRING). */
+  modePaiement: ModePaiement;
   datePaiement: string;
 }
 
@@ -14,7 +16,7 @@ export interface PaiementResponse {
   id: number;
   datePaiement: string;
   montant: number;
-  modePaiement: string;
+  modePaiement: ModePaiement;
   factureId: number;
   clientNom: string;
   createdAt: string;

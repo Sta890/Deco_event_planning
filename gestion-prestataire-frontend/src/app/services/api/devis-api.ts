@@ -19,14 +19,13 @@ export interface LigneDevisResponse {
 
 export interface DevisRequest {
   prestationId: number;
-  statut: string;
   lignes: LigneDevisRequest[];
 }
 
 export interface DevisResponse {
   id: number;
   dateCreation: string;
-  statut: string;
+  statutDevis: string;
   montantTotal: number;
   prestationId: number;
   typeEvenement: string;
@@ -56,8 +55,16 @@ export class DevisApiService {
     return this.http.get<DevisResponse[]>(`${this.url}/client/${clientId}`);
   }
 
+  getMesDevis(): Observable<DevisResponse[]> {
+    return this.http.get<DevisResponse[]>(`${environment.apiUrl}/client/mes-devis`);
+  }
+
   create(request: DevisRequest): Observable<DevisResponse> {
     return this.http.post<DevisResponse>(this.url, request);
+  }
+
+  mettreAJourLignes(id: number, lignes: LigneDevisRequest[]): Observable<DevisResponse> {
+    return this.http.put<DevisResponse>(`${this.url}/${id}/lignes`, lignes);
   }
 
   updateStatut(id: number, statut: string): Observable<DevisResponse> {

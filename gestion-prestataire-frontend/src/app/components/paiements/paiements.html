@@ -8,25 +8,26 @@
     <tr>
       <th>ID</th>
       <th>Date</th>
+      <th>Client</th>
       <th>Montant</th>
       <th>Mode de Paiement</th>
-      <th>ID Facture</th>
+      <th>Facture</th>
       <th>Actions</th>
     </tr>
   </ng-template>
 
   <ng-template pTemplate="body" let-paiement>
     <tr>
-      <td>{{ paiement.idPaiement }}</td>
+      <td>{{ paiement.id }}</td>
       <td>{{ paiement.datePaiement | date:'dd/MM/yyyy' }}</td>
+      <td>{{ paiement.clientNom }}</td>
       <td>{{ paiement.montant | currency:'XAF':'symbol':'1.0-0' }}</td>
       <td>
-        <p-tag [value]="paiement.modePaiement" [severity]="getCouleurMode(paiement.modePaiement)" />
+        <p-tag [value]="paiement.modePaiement | enumLabel" [severity]="getCouleurMode(paiement.modePaiement)" />
       </td>
-      <td>{{ paiement.idFacture }}</td>
+      <td>#{{ paiement.factureId }}</td>
       <td style="display: flex; gap: 0.5rem;">
-        <p-button icon="pi pi-pencil" severity="info" (onClick)="modifierPaiement(paiement)" />
-        <p-button icon="pi pi-trash" severity="danger" (onClick)="supprimerPaiement(paiement.idPaiement)" />
+        <p-button icon="pi pi-trash" severity="danger" (onClick)="supprimerPaiement(paiement.id)" />
       </td>
     </tr>
   </ng-template>
@@ -42,34 +43,64 @@
 
   <div style="display: flex; flex-direction: column; gap: 1rem; padding: 1rem 0;">
 
-    <p-datepicker
-      [ngModel]="paiementSelectionne().datePaiement"
-      (ngModelChange)="mettreAJourChamp('datePaiement', $event)"
-      dateFormat="dd/mm/yy"
-      placeholder="Date du paiement" />
+    @if (factureOptions().length === 0) {
+      <p-message
+        severity="info"
+        [style]="{ width: '100%' }"
+        text="Aucune facture en attente de paiement." />
+    } @else {
+      <p-select
+        [options]="factureOptions()"
+        [ngModel]="paiementSelectionne().factureId"
+        (ngModelChange)="selectionnerFacture($event)"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Facture" />
 
-    <p-inputNumber
-      [ngModel]="paiementSelectionne().montant"
-      (ngModelChange)="mettreAJourChamp('montant', $event)"
-      placeholder="Montant"
-      prefix="XAF " />
+      <p-inputNumber
+        [ngModel]="paiementSelectionne().montant"
+        (ngModelChange)="mettreAJourChamp('montant', $event)"
+        placeholder="Montant"
+        prefix="XAF "
+        [minFractionDigits]="2"
+        [maxFractionDigits]="2" />
 
-    <p-select
-      [options]="modePaiementOptions"
-      [ngModel]="paiementSelectionne().modePaiement"
-      (ngModelChange)="mettreAJourChamp('modePaiement', $event)"
-      placeholder="Mode de paiement" />
+      @if (montantAttendu() !== null) {
+        <small style="color: var(--p-text-muted-color); margin-top: -0.5rem;">
+          Montant à payer pour cette facture :
+          <strong>{{ formaterMontant(montantAttendu()!) }}</strong>
+          — le paiement doit être intégral.
+        </small>
+      }
 
-    <p-inputNumber
-      [ngModel]="paiementSelectionne().idFacture"
-      (ngModelChange)="mettreAJourChamp('idFacture', $event)"
-      placeholder="ID Facture" />
+      <p-select
+        [options]="modePaiementOptions"
+        [ngModel]="paiementSelectionne().modePaiement"
+        (ngModelChange)="mettreAJourChamp('modePaiement', $event)"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Mode de paiement" />
+
+      <p-datepicker
+        [ngModel]="paiementSelectionne().datePaiement"
+        (ngModelChange)="mettreAJourChamp('datePaiement', $event)"
+        dateFormat="dd/mm/yy"
+        placeholder="Date du paiement" />
+    }
+
+    @if (erreur()) {
+      <p-message severity="error" [style]="{ width: '100%' }" [text]="erreur()" />
+    }
 
   </div>
 
   <ng-template pTemplate="footer">
     <p-button label="Annuler" severity="secondary" (onClick)="dialogVisible.set(false)" />
-    <p-button label="Sauvegarder" (onClick)="sauvegarder()" />
+    <p-button
+      label="Sauvegarder"
+      icon="pi pi-check"
+      [disabled]="!formulaireValide()"
+      (onClick)="sauvegarder()" />
   </ng-template>
 
 </p-dialog>

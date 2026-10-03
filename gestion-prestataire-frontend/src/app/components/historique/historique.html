@@ -20,17 +20,19 @@
     <tr>
       <th>ID</th>
       <th>Action</th>
+      <th>Utilisateur</th>
       <th>Date</th>
     </tr>
   </ng-template>
 
   <ng-template pTemplate="body" let-historique>
     <tr>
-      <td>{{ historique.idHistorique }}</td>
+      <td>{{ historique.id }}</td>
       <td>
         <p-chip [label]="historique.action" />
       </td>
-      <td>{{ historique.dateAction | date:'dd/MM/yyyy' }}</td>
+      <td>{{ historique.utilisateurNom }}</td>
+      <td>{{ historique.dateAction | date:'dd/MM/yyyy HH:mm' }}</td>
     </tr>
   </ng-template>
 

@@ -1,6 +1,8 @@
 import { Injectable, signal, PLATFORM_ID, Inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { AuthApiService, AuthResponse } from './api/auth-api';
 
 @Injectable({
@@ -23,9 +25,9 @@ export class AuthService {
     }
   }
 
-  seConnecter(email: string, motDePasse: string): void {
-    this.authApiService.login({ email, motDePasse }).subscribe({
-      next: (response) => {
+  seConnecter(email: string, motDePasse: string): Observable<AuthResponse> {
+    return this.authApiService.login({ email, motDePasse }).pipe(
+      tap((response) => {
         if (isPlatformBrowser(this.platformId)) {
           localStorage.setItem('token', response.token);
           localStorage.setItem('user', JSON.stringify(response));
@@ -39,11 +41,8 @@ export class AuthService {
         } else {
           this.router.navigate(['/client/accueil']);
         }
-      },
-      error: (err) => {
-        console.error('Erreur login', err);
-      }
-    });
+      })
+    );
   }
 
   seDeconnecter() {

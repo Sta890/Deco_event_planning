@@ -20,25 +20,13 @@ export class PanierComponent implements OnInit {
   chargement = signal(false);
   erreur     = signal<string | null>(null);
 
-  // Liste des lignes de panier
   lignes = computed(() => this.panier()?.lignes ?? []);
   panierVide = computed(() => this.lignes().length === 0);
 
-  // Calcul dynamique du total (prend en compte montantTotal/total du backend ou recalcule si 0)
   total = computed(() => {
-    const p = this.panier() as any;
+    const p = this.panier();
     if (!p) return 0;
-
-    const backendTotal = p.montantTotal ?? p.total;
-    if (backendTotal && backendTotal > 0) {
-      return backendTotal;
-    }
-
-    // Recalcul de secours à partir des sous-totaux des lignes
-    return this.lignes().reduce((acc, ligne: any) => {
-      const sousTotalLigne = ligne.sousTotal ?? (ligne.prixUnitaire * ligne.quantite);
-      return acc + (sousTotalLigne || 0);
-    }, 0);
+    return p.total ?? 0;
   });
 
   constructor(
@@ -50,7 +38,7 @@ export class PanierComponent implements OnInit {
   ngOnInit(): void {
     const user = this.authService.getUtilisateur();
     if (!user) {
-      this.router.navigate(['/auth/login']);
+      this.router.navigate(['/login']);
       return;
     }
     this.chargerPanier();
@@ -128,9 +116,5 @@ export class PanierComponent implements OnInit {
       next: () => this.panier.set(null),
       error: (err) => console.error('Erreur vidage panier', err)
     });
-  }
-
-  allerAuPaiement(): void {
-    this.router.navigate(['/client/paiement']);
   }
 }

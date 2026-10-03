@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
@@ -8,76 +8,147 @@ import { TagModule } from 'primeng/tag';
 import { DatePickerModule } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
+import { PrestationApiService, PrestationRequest, PrestationResponse } from '../../services/api/prestation-api';
+import { ClientApiService, ClientResponse } from '../../services/api/client-api';
+import { EnumLabelPipe } from '../../shared/pipes/enum-label.pipe';
 
-import { Prestation } from '../../models/prestation.model';
+interface PrestationForm {
+  id: number;
+  typeEvenement: string;
+  dateEvenement: Date;
+  lieu: string;
+  description: string;
+  clientId: number | null;
+}
 
 @Component({
   selector: 'app-prestations',
   standalone: true,
   imports: [
     CommonModule, FormsModule, TableModule, ButtonModule,
-    DialogModule, TagModule, DatePickerModule, InputTextModule, SelectModule, 
+    DialogModule, TagModule, DatePickerModule, InputTextModule, SelectModule, EnumLabelPipe
   ],
   templateUrl: './prestations.html',
   styleUrl: './prestations.css'
 })
-export class PrestationsComponent {
+export class PrestationsComponent implements OnInit {
 
-  prestations = signal<Prestation[]>([
-    { idPrestation: 1, typeEvenement: 'Mariage', dateEvenement: new Date('2026-06-15'), lieu: 'Hôtel Renaissance Yaoundé', description: 'Décoration salle et extérieur', idClient: 1 },
-    { idPrestation: 2, typeEvenement: 'Baptême', dateEvenement: new Date('2026-07-20'), lieu: 'Église Centrale Douala', description: 'Décoration florale et tables', idClient: 2 },
-    { idPrestation: 3, typeEvenement: 'Cérémonie', dateEvenement: new Date('2026-08-10'), lieu: 'Salle des Fêtes Bafoussam', description: 'Décoration complète cérémonie', idClient: 3 },
-  ]);
+  prestations = signal<PrestationResponse[]>([]);
+  clients = signal<ClientResponse[]>([]);
+
+  clientOptions = computed(() =>
+    this.clients().map(c => ({ label: c.nom, value: c.id }))
+  );
 
   dialogVisible = signal(false);
 
   typeEvenementOptions = [
-    { label: 'Mariage', value: 'Mariage' },
-    { label: 'Baptême', value: 'Baptême' },
-    { label: 'Cérémonie', value: 'Cérémonie' },
-    { label: 'Anniversaire', value: 'Anniversaire' },
-    { label: 'Autre', value: 'Autre' },
+    { label: 'Mariage', value: 'MARIAGE' },
+    { label: 'Baptême', value: 'BAPTEME' },
+    { label: 'Cérémonie', value: 'CEREMONIE' },
+    { label: 'Anniversaire', value: 'ANNIVERSAIRE' },
+    { label: 'Autre', value: 'AUTRE' },
   ];
 
-  prestationSelectionnee = signal<Prestation>({
-    idPrestation: 0, typeEvenement: 'Mariage', dateEvenement: new Date(), lieu: '', description: '', idClient: 0
+  prestationSelectionnee = signal<PrestationForm>({
+    id: 0, typeEvenement: 'MARIAGE', dateEvenement: new Date(), lieu: '', description: '', clientId: null
   });
 
+  constructor(
+    private prestationApiService: PrestationApiService,
+    private clientApiService: ClientApiService
+  ) {}
+
+  ngOnInit(): void {
+    this.chargerPrestations();
+    this.chargerClients();
+  }
+
+  chargerPrestations() {
+    this.prestationApiService.findAll().subscribe({
+      next: (data) => this.prestations.set(data),
+      error: (err) => console.error('Erreur chargement prestations', err)
+    });
+  }
+
+  chargerClients() {
+    this.clientApiService.findAll().subscribe({
+      next: (data) => this.clients.set(data),
+      error: (err) => console.error('Erreur chargement clients', err)
+    });
+  }
+
   ouvrirDialog() {
-    this.prestationSelectionnee.set({ idPrestation: 0, typeEvenement: 'Mariage', dateEvenement: new Date(), lieu: '', description: '', idClient: 0 });
+    this.prestationSelectionnee.set({
+      id: 0, typeEvenement: 'MARIAGE', dateEvenement: new Date(), lieu: '', description: '', clientId: null
+    });
     this.dialogVisible.set(true);
   }
 
-  modifierPrestation(prestation: Prestation) {
-    this.prestationSelectionnee.set({ ...prestation });
+  modifierPrestation(prestation: PrestationResponse) {
+    this.prestationSelectionnee.set({
+      id: prestation.id,
+      typeEvenement: prestation.typeEvenement,
+      dateEvenement: new Date(prestation.dateEvenement),
+      lieu: prestation.lieu,
+      description: prestation.description,
+      clientId: prestation.clientId
+    });
     this.dialogVisible.set(true);
   }
 
   supprimerPrestation(id: number) {
-    this.prestations.update((list: Prestation[]) => list.filter(p => p.idPrestation !== id));
+    this.prestationApiService.delete(id).subscribe({
+      next: () => this.chargerPrestations(),
+      error: (err) => console.error('Erreur suppression prestation', err)
+    });
   }
 
-  mettreAJourChamp(champ: keyof Prestation, valeur: any) {
+  mettreAJourChamp(champ: keyof PrestationForm, valeur: any) {
     this.prestationSelectionnee.update(p => ({ ...p, [champ]: valeur }));
   }
 
   sauvegarder() {
     const p = this.prestationSelectionnee();
-    if (p.idPrestation === 0) {
-      this.prestations.update((list: Prestation[]) => [...list, { ...p, idPrestation: list.length + 1 }]);
-    } else {
-      this.prestations.update((list: Prestation[]) => list.map(x => x.idPrestation === p.idPrestation ? { ...p } : x));
+    if (!p.clientId) {
+      alert('Veuillez sélectionner un client');
+      return;
     }
-    this.dialogVisible.set(false);
+
+    const request: PrestationRequest = {
+      typeEvenement: p.typeEvenement,
+      dateEvenement: this.toIsoDate(p.dateEvenement),
+      lieu: p.lieu,
+      description: p.description,
+      clientId: p.clientId
+    };
+
+    const requete = p.id === 0
+      ? this.prestationApiService.create(request)
+      : this.prestationApiService.update(p.id, request);
+
+    requete.subscribe({
+      next: () => {
+        this.dialogVisible.set(false);
+        this.chargerPrestations();
+      },
+      error: (err) => console.error('Erreur sauvegarde prestation', err)
+    });
   }
 
   getCouleurEvenement(type: string) {
     switch (type) {
-      case 'Mariage': return 'contrast';
-      case 'Baptême': return 'info';
-      case 'Cérémonie': return 'success';
-      case 'Anniversaire': return 'warn';
+      case 'MARIAGE': return 'contrast';
+      case 'BAPTEME': return 'info';
+      case 'CEREMONIE': return 'success';
+      case 'ANNIVERSAIRE': return 'warn';
       default: return 'secondary';
     }
+  }
+
+  private toIsoDate(date: Date): string {
+    const mois = `${date.getMonth() + 1}`.padStart(2, '0');
+    const jour = `${date.getDate()}`.padStart(2, '0');
+    return `${date.getFullYear()}-${mois}-${jour}`;
   }
 }

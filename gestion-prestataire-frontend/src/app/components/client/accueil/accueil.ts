@@ -57,7 +57,7 @@ export class AccueilComponent implements OnInit {
       next: (articles) => {
         this.services.forEach(service => {
           const nb = articles.filter(a =>
-            a.typeEvenement === service.typeEvenement || a.typeEvenement === 'TOUS'
+            a.typeEvenement === service.typeEvenement || a.typeEvenement === 'AUTRE'
           ).length;
           service.nbArticles.set(nb);
         });

@@ -6,6 +6,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { DatePickerModule } from 'primeng/datepicker';
 import { RouterModule } from '@angular/router';
+import { DemandeApiService } from '../../../services/api/demande-api';
+import { AuthService } from '../../../services/auth';
 
 @Component({
   selector: 'app-demande-devis',
@@ -17,13 +19,15 @@ import { RouterModule } from '@angular/router';
 export class DemandeDevisComponent {
 
   envoye = signal(false);
+  erreur = signal('');
+  chargement = signal(false);
 
   typeEvenementOptions = [
-    { label: 'Mariage', value: 'Mariage' },
-    { label: 'Baptême', value: 'Baptême' },
-    { label: 'Cérémonie', value: 'Cérémonie' },
-    { label: 'Anniversaire', value: 'Anniversaire' },
-    { label: 'Autre', value: 'Autre' },
+    { label: 'Mariage', value: 'MARIAGE' },
+    { label: 'Baptême', value: 'BAPTEME' },
+    { label: 'Cérémonie', value: 'CEREMONIE' },
+    { label: 'Anniversaire', value: 'ANNIVERSAIRE' },
+    { label: 'Autre', value: 'AUTRE' },
   ];
 
   formulaire = signal({
@@ -37,6 +41,20 @@ export class DemandeDevisComponent {
     message: '',
   });
 
+  constructor(
+    private demandeApiService: DemandeApiService,
+    private authService: AuthService
+  ) {
+    const utilisateur = this.authService.getUtilisateur();
+    if (utilisateur) {
+      this.formulaire.update(f => ({
+        ...f,
+        nom: f.nom || utilisateur.nom,
+        email: f.email || utilisateur.email
+      }));
+    }
+  }
+
   mettreAJour(champ: string, valeur: any) {
     this.formulaire.update(f => ({ ...f, [champ]: valeur }));
   }
@@ -44,9 +62,38 @@ export class DemandeDevisComponent {
   envoyer() {
     const f = this.formulaire();
     if (!f.nom || !f.telephone || !f.typeEvenement || !f.dateEvenement) {
-      alert('Veuillez remplir tous les champs obligatoires !');
+      this.erreur.set('Veuillez remplir tous les champs obligatoires !');
       return;
     }
-    this.envoye.set(true);
+
+    this.erreur.set('');
+    this.chargement.set(true);
+
+    this.demandeApiService.envoyer({
+      nom: f.nom,
+      telephone: f.telephone,
+      email: f.email,
+      typeEvenement: f.typeEvenement,
+      dateEvenement: this.toIsoDate(f.dateEvenement),
+      lieu: f.lieu,
+      nombrePersonnes: f.nombrePersonnes ? Number(f.nombrePersonnes) : null,
+      message: f.message
+    }).subscribe({
+      next: () => {
+        this.chargement.set(false);
+        this.envoye.set(true);
+      },
+      error: (err) => {
+        this.chargement.set(false);
+        this.erreur.set('Erreur lors de l\'envoi de la demande. Réessayez !');
+        console.error('Erreur demande de devis', err);
+      }
+    });
+  }
+
+  private toIsoDate(date: Date): string {
+    const mois = `${date.getUTCMonth() + 1}`.padStart(2, '0');
+    const jour = `${date.getUTCDate()}`.padStart(2, '0');
+    return `${date.getUTCFullYear()}-${mois}-${jour}`;
   }
 }

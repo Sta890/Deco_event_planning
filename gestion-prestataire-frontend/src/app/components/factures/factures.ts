@@ -1,78 +1,65 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
 import { TagModule } from 'primeng/tag';
-import { DatePickerModule } from 'primeng/datepicker';
-import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
-import { Facture } from '../../models/facture.model';
+import { FactureApiService, FactureResponse } from '../../services/api/facture-api';
+import { EnumLabelPipe } from '../../shared/pipes/enum-label.pipe';
 
 @Component({
   selector: 'app-factures',
   standalone: true,
   imports: [
-    CommonModule, FormsModule, TableModule, ButtonModule,
-    DialogModule, TagModule, DatePickerModule, InputNumberModule, SelectModule
+    CommonModule, FormsModule, TableModule, ButtonModule, TagModule, SelectModule, EnumLabelPipe
   ],
   templateUrl: './factures.html',
   styleUrl: './factures.css'
 })
-export class FacturesComponent {
+export class FacturesComponent implements OnInit {
 
-  factures = signal<Facture[]>([
-    { idFacture: 1, dateFacture: new Date('2026-01-15'), montantTotal: 3500, statut: 'Payé', idDevis: 1 },
-    { idFacture: 2, dateFacture: new Date('2026-02-20'), montantTotal: 850, statut: 'En attente', idDevis: 2 },
-    { idFacture: 3, dateFacture: new Date('2026-03-25'), montantTotal: 1800, statut: 'En retard', idDevis: 3 },
-  ]);
+  factures = signal<FactureResponse[]>([]);
 
-  dialogVisible = signal(false);
-
+  // Le statut PAYE n'est pas proposé ici : il est positionné automatiquement
+  // par le backend lors de l'enregistrement d'un paiement (PaiementService).
   statutOptions = [
-    { label: 'Payé', value: 'Payé' },
-    { label: 'En attente', value: 'En attente' },
-    { label: 'En retard', value: 'En retard' },
+    { label: 'En attente', value: 'EN_ATTENTE' },
+    { label: 'En retard', value: 'EN_RETARD' },
   ];
 
-  factureSelectionnee = signal<Facture>({
-    idFacture: 0, dateFacture: new Date(), montantTotal: 0, statut: 'En attente', idDevis: 0
-  });
+  constructor(private factureApiService: FactureApiService) {}
 
-  ouvrirDialog() {
-    this.factureSelectionnee.set({ idFacture: 0, dateFacture: new Date(), montantTotal: 0, statut: 'En attente', idDevis: 0 });
-    this.dialogVisible.set(true);
+  ngOnInit(): void {
+    this.chargerFactures();
   }
 
-  modifierFacture(facture: Facture) {
-    this.factureSelectionnee.set({ ...facture });
-    this.dialogVisible.set(true);
+  chargerFactures() {
+    this.factureApiService.findAll().subscribe({
+      next: (data) => this.factures.set(data),
+      error: (err) => console.error('Erreur chargement factures', err)
+    });
+  }
+
+  changerStatut(id: number, statut: string) {
+    this.factureApiService.updateStatut(id, statut).subscribe({
+      next: () => this.chargerFactures(),
+      error: (err) => console.error('Erreur mise à jour statut facture', err)
+    });
   }
 
   supprimerFacture(id: number) {
-    this.factures.update(list => list.filter(f => f.idFacture !== id));
-  }
-
-  mettreAJourChamp(champ: keyof Facture, valeur: any) {
-    this.factureSelectionnee.update(f => ({ ...f, [champ]: valeur }));
-  }
-
-  sauvegarder() {
-    const f = this.factureSelectionnee();
-    if (f.idFacture === 0) {
-      this.factures.update(list => [...list, { ...f, idFacture: list.length + 1 }]);
-    } else {
-      this.factures.update(list => list.map(x => x.idFacture === f.idFacture ? { ...f } : x));
-    }
-    this.dialogVisible.set(false);
+    this.factureApiService.delete(id).subscribe({
+      next: () => this.chargerFactures(),
+      error: (err) => console.error('Erreur suppression facture', err)
+    });
   }
 
   getCouleurStatut(statut: string) {
     switch (statut) {
-      case 'Payé': return 'success';
-      case 'En attente': return 'warn';
-      case 'En retard': return 'danger';
+      case 'PAYE': return 'success';
+      case 'EN_ATTENTE': return 'warn';
+      case 'EN_RETARD': return 'danger';
       default: return 'secondary';
     }
   }

@@ -3,7 +3,6 @@
   <!-- Titre -->
   <div class="dashboard-header">
     <h1 class="dashboard-title">Tableau de bord Admin</h1>
-    <span class="dashboard-date">21 Mai 2026</span>
   </div>
 
   <!-- Cartes stats -->
@@ -24,38 +23,26 @@
   <!-- Contenu bas -->
   <div class="dashboard-bottom">
 
-    <!-- Activités récentes -->
     <div class="card">
-      <h3 class="card-title">Activités Récentes</h3>
+      <h3 class="card-title">Indicateurs</h3>
       <div class="activites">
-        @for (item of activitesRecentes(); track item.action) {
-          <div class="activite-item">
-            <div class="activite-icon" [style.background]="item.couleur + '20'">
-              <i [class]="item.icon" [style.color]="item.couleur"></i>
-            </div>
-            <div class="activite-info">
-              <span class="activite-action">{{ item.action }}</span>
-              <span class="activite-detail">{{ item.detail }}</span>
-            </div>
-            <span class="activite-date">{{ item.date }}</span>
+        <div class="activite-item">
+          <div class="activite-icon" style="background: #22c55e20">
+            <i class="pi pi-money-bill" style="color: #22c55e"></i>
           </div>
-        }
-      </div>
-    </div>
+          <div class="activite-info">
+            <span class="activite-action">Chiffre d'affaires</span>
+            <span class="activite-detail">{{ data()?.chiffreAffaires | currency:'XAF':'symbol':'1.0-0' }}</span>
+          </div>
+        </div>
 
-    <!-- Infos Prestataire unique -->
-    <div class="card">
-      <h3 class="card-title">Mon Activité</h3>
-      <div class="prestataires">
-        <div class="prestataire-item">
-          <div class="prestataire-avatar">D</div>
-          <div class="prestataire-info">
-            <span class="prestataire-nom">Décorateur Événementiel</span>
-            <span class="prestataire-specialite">Mariage · Baptême · Cérémonie · Anniversaire</span>
+        <div class="activite-item">
+          <div class="activite-icon" style="background: #6366f120">
+            <i class="pi pi-chart-line" style="color: #6366f1"></i>
           </div>
-          <div class="prestataire-statut" style="color: #22c55e;">
-            <i class="pi pi-circle-fill" style="font-size: 0.6rem;"></i>
-            Actif
+          <div class="activite-info">
+            <span class="activite-action">Taux de conversion des devis</span>
+            <span class="activite-detail">{{ data()?.tauxConversion }} %</span>
           </div>
         </div>
       </div>

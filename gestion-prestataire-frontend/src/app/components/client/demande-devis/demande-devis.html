@@ -88,12 +88,16 @@
         </textarea>
       </div>
 
+      @if (erreur()) {
+        <p style="color: #ef4444; margin: 0 0 0.5rem;">{{ erreur() }}</p>
+      }
+
       <!-- Actions -->
       <div class="form-actions">
         <a routerLink="/client/catalogue" class="btn-secondary">
           <i class="pi pi-arrow-left"></i> Retour au catalogue
         </a>
-        <button class="btn-primary" (click)="envoyer()">
+        <button class="btn-primary" (click)="envoyer()" [disabled]="chargement()">
           <i class="pi pi-send"></i> Envoyer la demande
         </button>
       </div>

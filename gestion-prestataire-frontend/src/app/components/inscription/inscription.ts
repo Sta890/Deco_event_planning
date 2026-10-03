@@ -1,5 +1,5 @@
-import { Component, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, signal, PLATFORM_ID, Inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
@@ -32,7 +32,8 @@ export class InscriptionComponent {
 
   constructor(
     private authApiService: AuthApiService,
-    private router: Router
+    private router: Router,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   mettreAJour(champ: string, valeur: string) {
@@ -68,7 +69,6 @@ export class InscriptionComponent {
     this.erreur.set('');
     this.chargement.set(true);
 
-    // ✅ Appel réel au backend
     this.authApiService.inscrire({
       nom: f.nom,
       email: f.email,
@@ -78,9 +78,10 @@ export class InscriptionComponent {
     }).subscribe({
       next: (response) => {
         this.chargement.set(false);
-        // Stocke le token et redirige vers le login
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('user', JSON.stringify(response));
+        if (isPlatformBrowser(this.platformId)) {
+          localStorage.setItem('token', response.token);
+          localStorage.setItem('user', JSON.stringify(response));
+        }
         this.router.navigate(['/client/accueil']);
       },
       error: (err) => {
@@ -90,7 +91,6 @@ export class InscriptionComponent {
         } else {
           this.erreur.set('Erreur lors de l\'inscription. Réessayez !');
         }
-        console.error('Erreur inscription', err);
       }
     });
   }

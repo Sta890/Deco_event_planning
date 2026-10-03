@@ -19,14 +19,14 @@
 
   <ng-template pTemplate="body" let-client>
     <tr>
-      <td>{{ client.idClient }}</td>
+      <td>{{ client.id }}</td>
       <td>{{ client.nom }}</td>
       <td>{{ client.telephone }}</td>
       <td>{{ client.adresse }}</td>
       <td>{{ client.email }}</td>
       <td style="display: flex; gap: 0.5rem;">
         <p-button icon="pi pi-pencil" severity="info" (onClick)="modifierClient(client)" />
-        <p-button icon="pi pi-trash" severity="danger" (onClick)="supprimerClient(client.idClient)" />
+        <p-button icon="pi pi-trash" severity="danger" (onClick)="supprimerClient(client.id)" />
       </td>
     </tr>
   </ng-template>
@@ -34,11 +34,11 @@
 </p-table>
 
 <!-- Dialog Ajout / Modification -->
-<p-dialog 
-  [visible]="dialogVisible()" 
+<p-dialog
+  [visible]="dialogVisible()"
   (visibleChange)="dialogVisible.set($event)"
-  header="Client" 
-  [modal]="true" 
+  header="Client"
+  [modal]="true"
   [style]="{ width: '400px' }">
 
   <div style="display: flex; flex-direction: column; gap: 1rem; padding: 1rem 0;">

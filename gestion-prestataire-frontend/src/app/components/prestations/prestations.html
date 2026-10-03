@@ -11,24 +11,24 @@
       <th>Date Événement</th>
       <th>Lieu</th>
       <th>Description</th>
-      <th>ID Client</th>
+      <th>Client</th>
       <th>Actions</th>
     </tr>
   </ng-template>
 
   <ng-template pTemplate="body" let-prestation>
     <tr>
-      <td>{{ prestation.idPrestation }}</td>
+      <td>{{ prestation.id }}</td>
       <td>
-        <p-tag [value]="prestation.typeEvenement" [severity]="getCouleurEvenement(prestation.typeEvenement)" />
+        <p-tag [value]="prestation.typeEvenement | enumLabel" [severity]="getCouleurEvenement(prestation.typeEvenement)" />
       </td>
       <td>{{ prestation.dateEvenement | date:'dd/MM/yyyy' }}</td>
       <td>{{ prestation.lieu }}</td>
       <td>{{ prestation.description }}</td>
-      <td>{{ prestation.idClient }}</td>
+      <td>{{ prestation.clientNom }}</td>
       <td style="display: flex; gap: 0.5rem;">
         <p-button icon="pi pi-pencil" severity="info" (onClick)="modifierPrestation(prestation)" />
-        <p-button icon="pi pi-trash" severity="danger" (onClick)="supprimerPrestation(prestation.idPrestation)" />
+        <p-button icon="pi pi-trash" severity="danger" (onClick)="supprimerPrestation(prestation.id)" />
       </td>
     </tr>
   </ng-template>
@@ -50,6 +50,12 @@
       (ngModelChange)="mettreAJourChamp('typeEvenement', $event)"
       placeholder="Type d'événement" />
 
+    <p-select
+      [options]="clientOptions()"
+      [ngModel]="prestationSelectionnee().clientId"
+      (ngModelChange)="mettreAJourChamp('clientId', $event)"
+      placeholder="Client" />
+
     <p-datepicker
       [ngModel]="prestationSelectionnee().dateEvenement"
       (ngModelChange)="mettreAJourChamp('dateEvenement', $event)"
@@ -69,11 +75,6 @@
   [value]="prestationSelectionnee().description"
   (input)="mettreAJourChamp('description', $any($event.target).value)">
 </textarea>
-
-    <p-inputNumber
-      [ngModel]="prestationSelectionnee().idClient"
-      (ngModelChange)="mettreAJourChamp('idClient', $event)"
-      placeholder="ID Client" />
 
   </div>
 

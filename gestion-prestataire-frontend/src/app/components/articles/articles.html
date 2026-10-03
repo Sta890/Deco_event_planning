@@ -17,16 +17,16 @@
 
   <ng-template pTemplate="body" let-article>
     <tr>
-      <td>{{ article.idArticle }}</td>
+      <td>{{ article.id }}</td>
       <td>{{ article.nom }}</td>
       <td>{{ article.description }}</td>
       <td>{{ article.prixUnitaire | currency:'XAF':'symbol':'1.0-0' }}</td>
       <td>
-        <p-tag [value]="article.typeEvenement" [severity]="getCouleurType(article.typeEvenement)" />
+        <p-tag [value]="article.typeEvenement | enumLabel" [severity]="getCouleurType(article.typeEvenement)" />
       </td>
       <td style="display: flex; gap: 0.5rem;">
         <p-button icon="pi pi-pencil" severity="info" (onClick)="modifierArticle(article)" />
-        <p-button icon="pi pi-trash" severity="danger" (onClick)="supprimerArticle(article.idArticle)" />
+        <p-button icon="pi pi-trash" severity="danger" (onClick)="supprimerArticle(article.id)" />
       </td>
     </tr>
   </ng-template>

@@ -1,197 +1,215 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { TagModule } from 'primeng/tag';
-import { DatePickerModule } from 'primeng/datepicker';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { DividerModule } from 'primeng/divider';
-import { Devis } from '../../models/devis.model';
-import { Article } from '../../models/article.model';
-import { LigneDevis } from '../../models/ligne-devis.model';
 import { Router } from '@angular/router';
-import { Facture } from '../../models/facture.model';
+import { DevisApiService, DevisResponse } from '../../services/api/devis-api';
+import { ArticleApiService, ArticleResponse } from '../../services/api/article-api';
+import { PrestationApiService, PrestationResponse } from '../../services/api/prestation-api';
+import { FactureApiService } from '../../services/api/facture-api';
+import { EnumLabelPipe, enumLabel } from '../../shared/pipes/enum-label.pipe';
+
+interface LigneEnCours {
+  articleId: number;
+  nom: string;
+  quantite: number;
+  prixUnitaire: number;
+  sousTotal: number;
+}
 
 @Component({
   selector: 'app-devis',
   standalone: true,
   imports: [
     CommonModule, FormsModule, TableModule, ButtonModule,
-    DialogModule, TagModule, DatePickerModule, InputNumberModule, SelectModule, DividerModule
+    DialogModule, TagModule, InputNumberModule, SelectModule, DividerModule, EnumLabelPipe
   ],
   templateUrl: './devis.html',
   styleUrl: './devis.css'
 })
-export class DevisComponent {
+export class DevisComponent implements OnInit {
 
-  // Catalogue articles disponibles
-  articlesDisponibles = signal<Article[]>([
-    { idArticle: 1, nom: 'Chaise dorée', description: 'Chaise dorée style royal', prixUnitaire: 2500, typeEvenement: 'Mariage' },
-    { idArticle: 2, nom: 'Table ronde', description: 'Table ronde 8 personnes', prixUnitaire: 15000, typeEvenement: 'Tous' },
-    { idArticle: 3, nom: 'Couvert complet', description: 'Set assiette verre couverts', prixUnitaire: 3000, typeEvenement: 'Tous' },
-    { idArticle: 4, nom: 'Bouquet floral', description: 'Bouquet décoration table', prixUnitaire: 8000, typeEvenement: 'Mariage' },
-    { idArticle: 5, nom: 'Arche florale', description: 'Arche fleurs naturelles', prixUnitaire: 45000, typeEvenement: 'Mariage' },
-    { idArticle: 6, nom: 'Nappe brodée', description: 'Nappe blanche brodée', prixUnitaire: 5000, typeEvenement: 'Tous' },
-    { idArticle: 7, nom: 'Ballon décoratif', description: 'Pack 50 ballons colorés', prixUnitaire: 7000, typeEvenement: 'Baptême' },
-    { idArticle: 8, nom: 'Sono événementielle', description: 'Système son complet', prixUnitaire: 80000, typeEvenement: 'Tous' },
-  ]);
+  devis = signal<DevisResponse[]>([]);
+  articlesDisponibles = signal<ArticleResponse[]>([]);
+  prestations = signal<PrestationResponse[]>([]);
 
-  prestationOptions = signal([
-    { label: 'Mariage Famille Dupont', value: 1 },
-    { label: 'Baptême Bébé Sarah', value: 2 },
-    { label: 'Cérémonie Hôtel Renaissance', value: 3 },
-  ]);
-
-  clientOptions = signal([
-    { label: 'Hôtel Renaissance', value: 1 },
-    { label: 'Mme. Sarah', value: 2 },
-    { label: 'Boutique Éclat', value: 3 },
-  ]);
-
-  devis = signal<Devis[]>([
-    {
-      idDevis: 1,
-      dateCreation: new Date('2026-01-10'),
-      statut: 'Validé',
-      idPrestation: 1,
-      idClient: 1,
-      lignes: [
-        { idArticle: 1, nom: 'Chaise dorée', quantite: 50, prixUnitaire: 2500, sousTotal: 125000 },
-        { idArticle: 5, nom: 'Arche florale', quantite: 1, prixUnitaire: 45000, sousTotal: 45000 },
-      ],
-      montantTotal: 170000
-    },
-  ]);
+  prestationOptions = computed(() =>
+    this.prestations().map(p => ({ label: `#${p.id} — ${enumLabel(p.typeEvenement)} (${p.clientNom})`, value: p.id }))
+  );
 
   dialogVisible = signal(false);
-  lignesEnCours = signal<LigneDevis[]>([]);
-
-  statutOptions = [
-    { label: 'En attente', value: 'En attente' },
-    { label: 'Validé', value: 'Validé' },
-    { label: 'Refusé', value: 'Refusé' },
-  ];
-
-  devisSelectionne = signal<Devis>({
-    idDevis: 0, dateCreation: new Date(), statut: 'En attente',
-    idPrestation: 0, idClient: 0, lignes: [], montantTotal: 0
-  });
+  prestationSelectionneeId = signal<number | null>(null);
+  lignesEnCours = signal<LigneEnCours[]>([]);
+  devisEnEdition = signal<DevisResponse | null>(null);
 
   montantTotal = computed(() =>
     this.lignesEnCours().reduce((total, ligne) => total + ligne.sousTotal, 0)
   );
 
-  ouvrirDialog() {
-    this.devisSelectionne.set({
-      idDevis: 0, dateCreation: new Date(), statut: 'En attente',
-      idPrestation: 0, idClient: 0, lignes: [], montantTotal: 0
+  constructor(
+    private devisApiService: DevisApiService,
+    private articleApiService: ArticleApiService,
+    private prestationApiService: PrestationApiService,
+    private factureApiService: FactureApiService,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.chargerDevis();
+    this.chargerArticles();
+    this.chargerPrestations();
+  }
+
+  chargerDevis() {
+    this.devisApiService.findAll().subscribe({
+      next: (data) => this.devis.set(data),
+      error: (err) => console.error('Erreur chargement devis', err)
     });
+  }
+
+  chargerArticles() {
+    this.articleApiService.findAll().subscribe({
+      next: (data) => this.articlesDisponibles.set(data),
+      error: (err) => console.error('Erreur chargement articles', err)
+    });
+  }
+
+  chargerPrestations() {
+    this.prestationApiService.findAll().subscribe({
+      next: (data) => this.prestations.set(data),
+      error: (err) => console.error('Erreur chargement prestations', err)
+    });
+  }
+
+  ouvrirDialog() {
+    this.devisEnEdition.set(null);
+    this.prestationSelectionneeId.set(null);
     this.lignesEnCours.set([]);
     this.dialogVisible.set(true);
   }
 
-  modifierDevis(devis: Devis) {
-    this.devisSelectionne.set({ ...devis });
-    this.lignesEnCours.set([...devis.lignes]);
+  ouvrirDialogCompletion(devis: DevisResponse) {
+    this.devisEnEdition.set(devis);
+    this.prestationSelectionneeId.set(devis.prestationId);
+    this.lignesEnCours.set(
+      (devis.lignes ?? []).map(l => ({
+        articleId: l.articleId,
+        nom: l.articleNom,
+        quantite: l.quantite,
+        prixUnitaire: l.prixUnitaire,
+        sousTotal: l.sousTotal,
+      }))
+    );
     this.dialogVisible.set(true);
   }
 
-  supprimerDevis(id: number) {
-    this.devis.update((list: Devis[]) => list.filter(d => d.idDevis !== id));
-  }
-
-  mettreAJourChamp(champ: keyof Devis, valeur: any) {
-    this.devisSelectionne.update(d => ({ ...d, [champ]: valeur }));
-  }
-
-  ajouterArticle(article: Article) {
-    const lignes = this.lignesEnCours();
-    const existant = lignes.find(l => l.idArticle === article.idArticle);
-    if (existant) {
-      this.lignesEnCours.update(list =>
-        list.map(l => l.idArticle === article.idArticle
-          ? { ...l, quantite: l.quantite + 1, sousTotal: (l.quantite + 1) * l.prixUnitaire }
-          : l
-        )
-      );
-    } else {
-      this.lignesEnCours.update(list => [...list, {
-        idArticle: article.idArticle,
-        nom: article.nom,
-        quantite: 1,
-        prixUnitaire: article.prixUnitaire,
-        sousTotal: article.prixUnitaire
-      }]);
+  ajouterArticle(article: ArticleResponse) {
+    const existante = this.lignesEnCours().find(l => l.articleId === article.id);
+    if (existante) {
+      this.modifierQuantite(article.id, existante.quantite + 1);
+      return;
     }
+    this.lignesEnCours.update(list => [...list, {
+      articleId: article.id,
+      nom: article.nom,
+      quantite: 1,
+      prixUnitaire: article.prixUnitaire,
+      sousTotal: article.prixUnitaire
+    }]);
   }
 
-  modifierQuantite(idArticle: number, quantite: number) {
+  modifierQuantite(articleId: number, quantite: number) {
     if (quantite <= 0) {
-      this.supprimerLigne(idArticle);
+      this.supprimerLigne(articleId);
       return;
     }
     this.lignesEnCours.update(list =>
-      list.map(l => l.idArticle === idArticle
+      list.map(l => l.articleId === articleId
         ? { ...l, quantite, sousTotal: quantite * l.prixUnitaire }
         : l
       )
     );
   }
 
-  supprimerLigne(idArticle: number) {
-    this.lignesEnCours.update(list => list.filter(l => l.idArticle !== idArticle));
+  supprimerLigne(articleId: number) {
+    this.lignesEnCours.update(list => list.filter(l => l.articleId !== articleId));
   }
 
   sauvegarder() {
-    const d = this.devisSelectionne();
-    const devisComplet: Devis = {
-      ...d,
-      lignes: this.lignesEnCours(),
-      montantTotal: this.montantTotal()
-    };
-    if (d.idDevis === 0) {
-      this.devis.update((list: Devis[]) => [...list, { ...devisComplet, idDevis: list.length + 1 }]);
-    } else {
-      this.devis.update((list: Devis[]) => list.map(x => x.idDevis === d.idDevis ? devisComplet : x));
+    const prestationId = this.prestationSelectionneeId();
+    if (!prestationId) {
+      alert('Veuillez sélectionner une prestation');
+      return;
     }
-    this.dialogVisible.set(false);
+    if (this.lignesEnCours().length === 0) {
+      alert('Ajoutez au moins un article');
+      return;
+    }
+
+    const devisEnCours = this.devisEnEdition();
+    if (devisEnCours) {
+      this.devisApiService.mettreAJourLignes(
+        devisEnCours.id,
+        this.lignesEnCours().map(l => ({ articleId: l.articleId, quantite: l.quantite }))
+      ).subscribe({
+        next: () => {
+          this.dialogVisible.set(false);
+          this.devisEnEdition.set(null);
+          this.chargerDevis();
+        },
+        error: (err) => console.error('Erreur mise à jour des lignes', err)
+      });
+      return;
+    }
+
+    this.devisApiService.create({
+      prestationId,
+      lignes: this.lignesEnCours().map(l => ({ articleId: l.articleId, quantite: l.quantite }))
+    }).subscribe({
+      next: () => {
+        this.dialogVisible.set(false);
+        this.chargerDevis();
+      },
+      error: (err) => console.error('Erreur création devis', err)
+    });
+  }
+
+  changerStatut(id: number, statut: string) {
+    this.devisApiService.updateStatut(id, statut).subscribe({
+      next: () => this.chargerDevis(),
+      error: (err) => console.error('Erreur mise à jour statut devis', err)
+    });
+  }
+
+  genererFacture(devis: DevisResponse) {
+    this.factureApiService.genererDepuisDevis(devis.id).subscribe({
+      next: () => this.router.navigate(['/prestataire/factures']),
+      error: (err) => {
+        console.error('Erreur génération facture', err);
+        alert(err?.error?.message ?? 'Impossible de générer la facture');
+      }
+    });
+  }
+
+  supprimerDevis(id: number) {
+    this.devisApiService.delete(id).subscribe({
+      next: () => this.chargerDevis(),
+      error: (err) => console.error('Erreur suppression devis', err)
+    });
   }
 
   getCouleurStatut(statut: string) {
     switch (statut) {
-      case 'Validé': return 'success';
-      case 'En attente': return 'warn';
-      case 'Refusé': return 'danger';
+      case 'VALIDE': return 'success';
+      case 'EN_ATTENTE': return 'warn';
+      case 'REFUSE': return 'danger';
       default: return 'secondary';
     }
   }
-  constructor(private router: Router) {}
-
-  factures = signal<Facture[]>([]);
-
-genererFacture(devis: Devis) {
-  // Vérifie si une facture existe déjà pour ce devis
-  const factureExistante = this.factures().find(f => f.idDevis === devis.idDevis);
-  if (factureExistante) {
-    alert('Une facture existe déjà pour ce devis !');
-    return;
-  }
-
-  // Crée la facture automatiquement
-  const nouvelleFacture: Facture = {
-    idFacture: this.factures().length + 1,
-    dateFacture: new Date(),
-    montantTotal: devis.montantTotal,
-    statut: 'En attente',
-    idDevis: devis.idDevis
-  };
-
-  this.factures.update((list: Facture[]) => [...list, nouvelleFacture]);
-
-  // Redirige vers la page Factures
-  this.router.navigate(['/prestataire/factures']);
-}
 }

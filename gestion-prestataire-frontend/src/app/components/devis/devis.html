@@ -19,26 +19,29 @@
 
   <ng-template pTemplate="body" let-devis>
     <tr>
-      <td>{{ devis.idDevis }}</td>
+      <td>{{ devis.id }}</td>
       <td>{{ devis.dateCreation | date:'dd/MM/yyyy' }}</td>
-      <td>{{ devis.idClient }}</td>
-      <td>{{ devis.idPrestation }}</td>
+      <td>{{ devis.clientNom }}</td>
+      <td>{{ devis.typeEvenement | enumLabel }}</td>
       <td>{{ devis.lignes.length }} article(s)</td>
       <td>{{ devis.montantTotal | currency:'XAF':'symbol':'1.0-0' }}</td>
       <td>
-        <p-tag [value]="devis.statut" [severity]="getCouleurStatut(devis.statut)" />
+        <p-tag [value]="devis.statutDevis | enumLabel" [severity]="getCouleurStatut(devis.statutDevis)" />
       </td>
       <td style="display: flex; gap: 0.5rem;">
-        <p-button icon="pi pi-pencil" severity="info" (onClick)="modifierDevis(devis)" />
-        <p-button icon="pi pi-trash" severity="danger" (onClick)="supprimerDevis(devis.idDevis)" />
-         @if (devis.statut === 'Validé') {
-    <p-button 
-      icon="pi pi-file-edit" 
-      severity="success" 
-      pTooltip="Générer Facture"
-      tooltipPosition="top"
-      (onClick)="genererFacture(devis)" />
-  }
+        @if (devis.statutDevis === 'EN_ATTENTE') {
+          <p-button icon="pi pi-check" severity="success" pTooltip="Valider" tooltipPosition="top"
+            (onClick)="changerStatut(devis.id, 'VALIDE')" />
+          <p-button icon="pi pi-times" severity="warn" pTooltip="Refuser" tooltipPosition="top"
+            (onClick)="changerStatut(devis.id, 'REFUSE')" />
+          <p-button icon="pi pi-pencil" severity="info" pTooltip="Compléter / Modifier les articles" tooltipPosition="top"
+            (onClick)="ouvrirDialogCompletion(devis)" />
+        }
+        @if (devis.statutDevis === 'VALIDE') {
+          <p-button icon="pi pi-file-edit" severity="success" pTooltip="Générer Facture" tooltipPosition="top"
+            (onClick)="genererFacture(devis)" />
+        }
+        <p-button icon="pi pi-trash" severity="danger" (onClick)="supprimerDevis(devis.id)" />
       </td>
     </tr>
   </ng-template>
@@ -49,32 +52,20 @@
 <p-dialog
   [visible]="dialogVisible()"
   (visibleChange)="dialogVisible.set($event)"
-  header="Nouveau Devis"
+  [header]="devisEnEdition() ? 'Compléter le devis #' + devisEnEdition()!.id : 'Nouveau Devis'"
   [modal]="true"
   [style]="{ width: '850px' }">
 
   <div style="display: flex; flex-direction: column; gap: 1.5rem; padding: 1rem 0;">
 
     <!-- Infos générales -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
-
-      <p-select
-        [options]="clientOptions()"
-        [ngModel]="devisSelectionne().idClient"
-        (ngModelChange)="mettreAJourChamp('idClient', $event)"
-        placeholder="Client" />
+    <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
 
       <p-select
         [options]="prestationOptions()"
-        [ngModel]="devisSelectionne().idPrestation"
-        (ngModelChange)="mettreAJourChamp('idPrestation', $event)"
+        [ngModel]="prestationSelectionneeId()"
+        (ngModelChange)="prestationSelectionneeId.set($event)"
         placeholder="Prestation" />
-
-      <p-select
-        [options]="statutOptions"
-        [ngModel]="devisSelectionne().statut"
-        (ngModelChange)="mettreAJourChamp('statut', $event)"
-        placeholder="Statut" />
 
     </div>
 
@@ -87,7 +78,7 @@
       <div>
         <h4 style="margin-bottom: 0.75rem; color: #9ca3af;">Articles disponibles</h4>
         <div style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 300px; overflow-y: auto;">
-          @for (article of articlesDisponibles(); track article.idArticle) {
+          @for (article of articlesDisponibles(); track article.id) {
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; background: #1e1e2e; border-radius: 8px; border: 1px solid #ffffff10;">
               <div>
                 <div style="color: white; font-size: 0.9rem; font-weight: 500;">{{ article.nom }}</div>
@@ -108,16 +99,16 @@
           </div>
         }
         <div style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 300px; overflow-y: auto;">
-          @for (ligne of lignesEnCours(); track ligne.idArticle) {
+          @for (ligne of lignesEnCours(); track ligne.articleId) {
             <div style="padding: 0.75rem; background: #1e1e2e; border-radius: 8px; border: 1px solid #ffffff10;">
               <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
                 <span style="color: white; font-size: 0.9rem; font-weight: 500;">{{ ligne.nom }}</span>
-                <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [text]="true" (onClick)="supprimerLigne(ligne.idArticle)" />
+                <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [text]="true" (onClick)="supprimerLigne(ligne.articleId)" />
               </div>
               <div style="display: flex; align-items: center; justify-content: space-between;">
                 <p-inputNumber
                   [ngModel]="ligne.quantite"
-                  (ngModelChange)="modifierQuantite(ligne.idArticle, $event)"
+                  (ngModelChange)="modifierQuantite(ligne.articleId, $event)"
                   [min]="1"
                   [showButtons]="true"
                   [style]="{ width: '120px' }" />

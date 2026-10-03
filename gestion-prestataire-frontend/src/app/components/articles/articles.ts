@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
@@ -8,81 +8,98 @@ import { TagModule } from 'primeng/tag';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
-import { Article } from '../../models/article.model';
+import { ArticleApiService, ArticleRequest, ArticleResponse } from '../../services/api/article-api';
+import { EnumLabelPipe } from '../../shared/pipes/enum-label.pipe';
 
 @Component({
   selector: 'app-articles',
   standalone: true,
   imports: [
     CommonModule, FormsModule, TableModule, ButtonModule,
-    DialogModule, TagModule, InputTextModule, InputNumberModule, SelectModule
+    DialogModule, TagModule, InputTextModule, InputNumberModule, SelectModule, EnumLabelPipe
   ],
   templateUrl: './articles.html',
   styleUrl: './articles.css'
 })
-export class ArticlesComponent {
+export class ArticlesComponent implements OnInit {
 
-  articles = signal<Article[]>([
-    { idArticle: 1, nom: 'Chaise dorée', description: 'Chaise dorée style royal', prixUnitaire: 2500, typeEvenement: 'Mariage' },
-    { idArticle: 2, nom: 'Table ronde', description: 'Table ronde 8 personnes', prixUnitaire: 15000, typeEvenement: 'Tous' },
-    { idArticle: 3, nom: 'Couvert complet', description: 'Set assiette verre couverts', prixUnitaire: 3000, typeEvenement: 'Tous' },
-    { idArticle: 4, nom: 'Bouquet floral', description: 'Bouquet décoration table', prixUnitaire: 8000, typeEvenement: 'Mariage' },
-    { idArticle: 5, nom: 'Arche florale', description: 'Arche fleurs naturelles', prixUnitaire: 45000, typeEvenement: 'Mariage' },
-    { idArticle: 6, nom: 'Nappe brodée', description: 'Nappe blanche brodée', prixUnitaire: 5000, typeEvenement: 'Tous' },
-    { idArticle: 7, nom: 'Ballon décoratif', description: 'Pack 50 ballons colorés', prixUnitaire: 7000, typeEvenement: 'Baptême' },
-    { idArticle: 8, nom: 'Sono événementielle', description: 'Système son complet', prixUnitaire: 80000, typeEvenement: 'Tous' },
-  ]);
-
+  articles = signal<ArticleResponse[]>([]);
   dialogVisible = signal(false);
 
   typeEvenementOptions = [
-    { label: 'Tous', value: 'Tous' },
-    { label: 'Mariage', value: 'Mariage' },
-    { label: 'Baptême', value: 'Baptême' },
-    { label: 'Cérémonie', value: 'Cérémonie' },
-    { label: 'Anniversaire', value: 'Anniversaire' },
-    { label: 'Autre', value: 'Autre' },
+    { label: 'Mariage', value: 'MARIAGE' },
+    { label: 'Baptême', value: 'BAPTEME' },
+    { label: 'Cérémonie', value: 'CEREMONIE' },
+    { label: 'Anniversaire', value: 'ANNIVERSAIRE' },
+    { label: 'Autre', value: 'AUTRE' },
   ];
 
-  articleSelectionne = signal<Article>({
-    idArticle: 0, nom: '', description: '', prixUnitaire: 0, typeEvenement: 'Tous'
+  articleSelectionne = signal<ArticleResponse>({
+    id: 0, nom: '', description: '', prixUnitaire: 0, typeEvenement: 'AUTRE'
   });
 
+  constructor(private articleApiService: ArticleApiService) {}
+
+  ngOnInit(): void {
+    this.chargerArticles();
+  }
+
+  chargerArticles() {
+    this.articleApiService.findAll().subscribe({
+      next: (data) => this.articles.set(data),
+      error: (err) => console.error('Erreur chargement articles', err)
+    });
+  }
+
   ouvrirDialog() {
-    this.articleSelectionne.set({ idArticle: 0, nom: '', description: '', prixUnitaire: 0, typeEvenement: 'Tous' });
+    this.articleSelectionne.set({ id: 0, nom: '', description: '', prixUnitaire: 0, typeEvenement: 'AUTRE' });
     this.dialogVisible.set(true);
   }
 
-  modifierArticle(article: Article) {
+  modifierArticle(article: ArticleResponse) {
     this.articleSelectionne.set({ ...article });
     this.dialogVisible.set(true);
   }
 
   supprimerArticle(id: number) {
-    this.articles.update((list: Article[]) => list.filter(a => a.idArticle !== id));
+    this.articleApiService.delete(id).subscribe({
+      next: () => this.chargerArticles(),
+      error: (err) => console.error('Erreur suppression article', err)
+    });
   }
 
-  mettreAJourChamp(champ: keyof Article, valeur: any) {
+  mettreAJourChamp(champ: keyof ArticleResponse, valeur: any) {
     this.articleSelectionne.update(a => ({ ...a, [champ]: valeur }));
   }
 
   sauvegarder() {
     const a = this.articleSelectionne();
-    if (a.idArticle === 0) {
-      this.articles.update((list: Article[]) => [...list, { ...a, idArticle: list.length + 1 }]);
-    } else {
-      this.articles.update((list: Article[]) => list.map(x => x.idArticle === a.idArticle ? { ...a } : x));
-    }
-    this.dialogVisible.set(false);
+    const request: ArticleRequest = {
+      nom: a.nom,
+      description: a.description,
+      prixUnitaire: a.prixUnitaire,
+      typeEvenement: a.typeEvenement
+    };
+
+    const requete = a.id === 0
+      ? this.articleApiService.create(request)
+      : this.articleApiService.update(a.id, request);
+
+    requete.subscribe({
+      next: () => {
+        this.dialogVisible.set(false);
+        this.chargerArticles();
+      },
+      error: (err) => console.error('Erreur sauvegarde article', err)
+    });
   }
 
   getCouleurType(type: string) {
     switch (type) {
-      case 'Mariage': return 'contrast';
-      case 'Baptême': return 'info';
-      case 'Cérémonie': return 'success';
-      case 'Anniversaire': return 'warn';
-      case 'Tous': return 'secondary';
+      case 'MARIAGE': return 'contrast';
+      case 'BAPTEME': return 'info';
+      case 'CEREMONIE': return 'success';
+      case 'ANNIVERSAIRE': return 'warn';
       default: return 'secondary';
     }
   }

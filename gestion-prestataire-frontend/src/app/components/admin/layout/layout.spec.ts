@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { AdminLayoutComponent } from './layout';
 
@@ -8,7 +9,8 @@ describe('Layout', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AdminLayoutComponent]
+      imports: [AdminLayoutComponent],
+      providers: [provideRouter([])]
     })
     .compileComponents();
 

@@ -2,15 +2,16 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { StatutFacture, TypeEvenement } from '../../shared/enums';
 
 export interface FactureResponse {
   id: number;
   dateFacture: string;
   montantTotal: number;
-  statut: string;
+  statutFacture: StatutFacture;
   devisId: number;
   clientNom: string;
-  typeEvenement: string;
+  typeEvenement: TypeEvenement;
   createdAt: string;
 }
 
@@ -33,6 +34,10 @@ export class FactureApiService {
 
   findByClientId(clientId: number): Observable<FactureResponse[]> {
     return this.http.get<FactureResponse[]>(`${this.url}/client/${clientId}`);
+  }
+
+  getMesFactures(): Observable<FactureResponse[]> {
+    return this.http.get<FactureResponse[]>(`${environment.apiUrl}/client/mes-factures`);
   }
 
   genererDepuisDevis(devisId: number): Observable<FactureResponse> {

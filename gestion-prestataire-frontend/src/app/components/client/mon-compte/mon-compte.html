@@ -38,15 +38,15 @@
   <!-- Contenu onglets -->
   @if (ongletActif() === 'devis') {
     <div class="liste">
-      @for (devis of mesDevis(); track devis.idDevis) {
+      @for (devis of mesDevis(); track devis.id) {
         <div class="item-card">
           <div class="item-icon">📋</div>
           <div class="item-info">
-            <span class="item-titre">Devis #{{ devis.idDevis }} — {{ devis.typeEvenement }}</span>
+            <span class="item-titre">Devis #{{ devis.id }} — {{ devis.typeEvenement | enumLabel }}</span>
             <span class="item-date">{{ devis.dateCreation | date:'dd/MM/yyyy' }}</span>
           </div>
           <span class="item-montant">{{ devis.montantTotal | currency:'XAF':'symbol':'1.0-0' }}</span>
-          <p-tag [value]="devis.statut" [severity]="getCouleurStatut(devis.statut)" />
+          <p-tag [value]="devis.statutDevis | enumLabel" [severity]="getCouleurStatut(devis.statutDevis)" />
         </div>
       }
     </div>
@@ -54,15 +54,15 @@
 
   @if (ongletActif() === 'factures') {
     <div class="liste">
-      @for (facture of mesFactures(); track facture.idFacture) {
+      @for (facture of mesFactures(); track facture.id) {
         <div class="item-card">
           <div class="item-icon">🧾</div>
           <div class="item-info">
-            <span class="item-titre">Facture #{{ facture.idFacture }} — {{ facture.typeEvenement }}</span>
+            <span class="item-titre">Facture #{{ facture.id }} — {{ facture.typeEvenement | enumLabel }}</span>
             <span class="item-date">{{ facture.dateFacture | date:'dd/MM/yyyy' }}</span>
           </div>
           <span class="item-montant">{{ facture.montantTotal | currency:'XAF':'symbol':'1.0-0' }}</span>
-          <p-tag [value]="facture.statut" [severity]="getCouleurStatut(facture.statut)" />
+          <p-tag [value]="facture.statutFacture | enumLabel" [severity]="getCouleurStatut(facture.statutFacture)" />
         </div>
       }
     </div>
