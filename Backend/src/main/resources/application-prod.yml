@@ -16,7 +16,10 @@ spring:
   jpa:
     hibernate:
       # Le schéma est vérifié au démarrage mais jamais modifié automatiquement.
-      ddl-auto: validate
+      # ATTENTION : au tout premier déploiement la base est vide, donc
+      # "validate" échoue. Définir DDL_AUTO=update pour ce premier démarrage
+      # (la table est alors créée), puis remettre "validate" (valeur par défaut).
+      ddl-auto: ${DDL_AUTO:validate}
     show-sql: false
     properties:
       hibernate:

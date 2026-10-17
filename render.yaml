@@ -1,0 +1,72 @@
+# Blueprint Render : crée le backend (Docker) puis le frontend (Static Site).
+#
+# Mise en place : Render > New + > Blueprint > sélectionner ce dépôt Git.
+# Render lit ce fichier et propose les deux services.
+#
+# Voir DEPLOY.md pour la procédure complète.
+
+services:
+  # ---------------------------------------------------------------------------
+  # Backend Spring Boot — image Docker (Java n'est pas un runtime natif Render).
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: decoevent-backend
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerContext: ./Backend
+    dockerfilePath: ./Backend/Dockerfile
+    healthCheckPath: /api/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+
+      # --- Base MySQL externe (Aiven, Clever Cloud, Railway...) ---
+      # Renseignées à la main dans le dashboard Render.
+      - key: DB_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+
+      # Généré par Render : le secret JWT n'est jamais en clair dans le dépôt.
+      - key: JWT_SECRET
+        generateValue: true
+
+      # URL du frontend une fois créé
+      # (ex. https://decoevent-frontend.onrender.com).
+      - key: CORS_ORIGIN
+        sync: false
+
+      # ⚠️ TEMPORAIRE : au tout premier déploiement la base est vide, donc
+      # "validate" ferait échouer le démarrage. Passer à "validate" juste après
+      # le premier déploiement réussi (ou ajouter Flyway, cf. DEPLOY.md).
+      - key: DDL_AUTO
+        value: update
+
+      - key: SWAGGER_ENABLED
+        value: "false"
+
+  # ---------------------------------------------------------------------------
+  # Frontend Angular — Static Site (fichiers servis par le CDN Render).
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: decoevent-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run config && npm run build
+    staticPublishPath: dist/gestion-prestataire/browser
+    envVars:
+      # Angular 21 exige Node >= 22.12.
+      - key: NODE_VERSION
+        value: 22.12.0
+      # URL absolue du backend, /api inclus
+      # (ex. https://decoevent-backend.onrender.com/api).
+      - key: API_URL
+        sync: false
+    routes:
+      # Routage côté client (SPA) : les URL inconnues retombent sur index.html.
+      - type: rewrite
+        source: /*
+        destination: /index.html

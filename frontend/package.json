@@ -4,7 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build && node scripts/postbuild.js",
+    "config": "node scripts/set-env.js",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:gestion-prestataire": "node dist/gestion-prestataire/server/server.mjs"
