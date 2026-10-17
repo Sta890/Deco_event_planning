@@ -8,22 +8,45 @@ L'application se déploie en **deux services** Render, décrits par `render.yaml
 | `decoevent-backend` | Web Service (Docker) | API Spring Boot (port fourni par `PORT`) |
 | `decoevent-frontend` | Static Site | Interface Angular compilée |
 
+La base de données MySQL est **externe** (Render ne propose que PostgreSQL).
+
 ---
 
 ## Prérequis
 
 1. Un compte Render.
 2. Le dépôt poussé sur GitHub/GitLab.
-3. Une base **MySQL accessible depuis Internet**.
+3. Une base **MySQL accessible depuis Internet** (étape 0 ci-dessous).
+
+---
+
+## 0. Créer la base MySQL sur Aiven (recommandé)
 
 > ⚠️ **Render ne propose que PostgreSQL en base managée.** L'application étant
-> en MySQL, il faut une base externe : [Aiven](https://aiven.io) (offre
-> gratuite), [Clever Cloud](https://www.clever-cloud.com) ou
-> [Railway](https://railway.app).
+> en MySQL, la base doit être externe. **Aiven** est le meilleur choix : offre
+> MySQL gratuite **sans limite de durée** et **sans carte bancaire**.
 
-Récupérer auprès du fournisseur : **hôte, port, nom de base, utilisateur, mot de
-passe**, et activer l'**accès public** (Render n'a pas d'IP fixe sur l'offre
-gratuite).
+1. Créer un compte sur <https://console.aiven.io/signup> (GitHub ou Google).
+2. **Create service** → **MySQL** → plan **Free**.
+3. Choisir une région **proche de `frankfurt`** (région du backend Render), par
+   exemple une région européenne — cela limite la latence.
+4. Attendre que le service soit `RUNNING`, puis onglet **Users** : relever
+   l'**hôte**, le **port**, l'**utilisateur** et le **mot de passe**.
+5. Onglet **Networking** → **Add IP address** → `0.0.0.0/0` (Render n'a pas
+   d'IP de sortie fixe sur l'offre gratuite).
+
+La base créée par défaut par Aiven s'appelle **`defaultdb`**, et le port n'est
+**pas** 3306 (Aiven utilise un port personnalisé, souvent `12xxx`).
+
+> ℹ️ Aiven peut **éteindre** un service gratuit resté longtemps inactif (tu es
+> prévenu par email avant). Il suffit de cliquer sur **Power on** dans la console
+> Aiven. À vérifier avant une démonstration.
+>
+> ⚠️ Si la base est éteinte au moment du déploiement, le backend ne démarrera
+> pas et le déploiement Render échouera au health check. Rallume-la d'abord.
+
+Autres fournisseurs possibles : [Clever Cloud](https://www.clever-cloud.com),
+[Railway](https://railway.app).
 
 ---
 
@@ -48,14 +71,16 @@ Render lit `render.yaml` et propose les deux services. Les variables marquées
 
 | Variable | Valeur |
 |---|---|
-| `DB_URL` | `jdbc:mysql://HOST:PORT/DBNAME?useSSL=true&requireSSL=true&serverTimezone=UTC&allowPublicKeyRetrieval=true` |
-| `DB_USERNAME` | utilisateur MySQL |
-| `DB_PASSWORD` | mot de passe MySQL |
+| `DB_URL` | `jdbc:mysql://HOST:PORT/defaultdb?sslMode=REQUIRED&serverTimezone=UTC&allowPublicKeyRetrieval=true` |
+| `DB_USERNAME` | utilisateur Aiven (souvent `avnadmin`) |
+| `DB_PASSWORD` | mot de passe Aiven |
 | `CORS_ORIGIN` | `https://decoevent-frontend.onrender.com` |
 | `JWT_SECRET` | généré automatiquement par Render |
 | `DDL_AUTO` | `update` au 1er déploiement, puis `validate` |
 
-Retirer `requireSSL=true` si le fournisseur MySQL n'impose pas TLS.
+`sslMode=REQUIRED` chiffre la connexion sans vérifier le certificat : c'est ce
+qui convient au certificat d'Aiven, et cela évite d'avoir à embarquer une AC.
+Remplacer `defaultdb` si le nom de base diffère.
 
 ### Frontend (`decoevent-frontend`)
 
@@ -97,6 +122,9 @@ donc l'URL absolue du backend via `API_URL`.
 
 - `frontend/scripts/set-env.js` régénère `src/environments/environment.production.ts`.
 - `angular.json` (configuration `production`) remplace `environment.ts` par ce fichier.
+- `frontend/scripts/postbuild.js` crée le `index.html` manquant (le build SSR
+  n'émet que `index.csr.html`, or un hébergement statique a besoin d'un
+  `index.html`).
 - Le backend autorise cette origine grâce à `CORS_ORIGIN` (plusieurs origines
   possibles, séparées par des virgules).
 
@@ -109,11 +137,16 @@ schéma mais ne le crée pas. Sur une base vide, **le démarrage échoue**. D'o�
 Solution propre à terme : ajouter **Flyway** (ou Liquibase) et des migrations,
 puis repasser à `validate` définitivement.
 
-### Offres gratuites
+### Offres gratuites et ressources
 
-- Le backend gratuit s'endort après ~15 min d'inactivité : le premier appel
-  après réveil prend 30 à 60 s.
-- Les Static Sites sont gratuits, sans mise en veille.
+- Le backend gratuit (**0,1 CPU / 512 Mo**) s'endort après 15 min sans trafic :
+  le premier appel après réveil prend environ 1 minute, et le démarrage à froid
+  est lent sur 0,1 CPU.
+- Le `Dockerfile` force `-XX:MaxRAMPercentage=70` : le réglage JVM par défaut
+  (25 % de 512 Mo ≈ 128 Mo de tas) est trop juste pour Spring Boot.
+- Les **Static Sites** sont gratuits et ne se mettent pas en veille.
+- Quota : 750 h d'instance gratuite par mois. Un backend tournant en continu
+  consomme ~730 h/mois : ça passe, mais sans marge.
 
 ---
 
@@ -122,10 +155,14 @@ puis repasser à `validate` définitivement.
 | Symptôme | Cause probable |
 |---|---|
 | Redémarrages en boucle, `Schema-validation: missing table` | Base vide + `DDL_AUTO=validate` → passer à `update` |
+| Base injoignable après quelques semaines | Service Aiven éteint pour inactivité → **Power on** dans la console Aiven |
+| `Communications link failure` | IP non autorisée dans Aiven → Networking → ajouter `0.0.0.0/0` |
+| Déploiement en échec au health check | Base Aiven éteinte pendant le build → la rallumer puis redéployer |
 | Erreur CORS dans la console navigateur | `CORS_ORIGIN` ≠ URL exacte du frontend (schéma + domaine, sans `/` final) |
-| `Access denied for user` | Identifiants MySQL, ou IP Render non autorisée chez le fournisseur |
+| `Access denied for user` | Identifiants Aiven erronés, ou base non encore `RUNNING` |
 | Le frontend appelle `/api` ou `localhost` | `API_URL` absente au moment du build → la définir puis redéployer |
 | Échec du build Angular (Node) | `NODE_VERSION` < `22.12.0` |
+| Conteneur tué (`OOMKilled`) | Tas JVM trop large → ajuster `JAVA_OPTS` |
 | `Cannot connect to Docker daemon` en local | Normal si Docker Desktop est arrêté ; Render gère le build |
 
 ## Test local de l'image (facultatif)
@@ -133,7 +170,13 @@ puis repasser à `validate` définitivement.
 ```bash
 cd Backend
 docker build -t decoevent-backend .
+
+# --add-host : permet au conteneur de joindre le MySQL installé sur la machine hôte.
 docker run --rm -p 8070:8070 \
+  --add-host=host.docker.internal:host-gateway \
   -e SPRING_PROFILES_ACTIVE=local \
+  -e DB_URL="jdbc:mysql://host.docker.internal:3306/decoevent?useSSL=false&serverTimezone=UTC" \
+  -e DB_USERNAME=root \
+  -e DB_PASSWORD=1234 \
   decoevent-backend
 ```
