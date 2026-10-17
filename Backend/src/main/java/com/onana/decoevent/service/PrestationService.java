@@ -99,7 +99,7 @@ public class PrestationService {
 
         log.info("Demande de devis enregistrée - Prestation ID: {}", prestation.getId());
         historiqueService.enregistrer("Demande de devis reçue : " + dto.getTypeEvenement() + " pour " + client.getNom());
-        devisService.createDepuisPrestation(prestation);
+        devisService.createDepuisPrestation(prestation, dto.getLignes());
         return prestationMapper.toResponse(prestation);
     }
 

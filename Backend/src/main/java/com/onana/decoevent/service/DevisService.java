@@ -83,18 +83,7 @@ public class DevisService {
 
         devis = devisRepository.save(devis);
 
-        BigDecimal montantTotal = BigDecimal.ZERO;
-        if (dto.getLignes() != null) {
-            for (LigneDevisRequest ligneDto : dto.getLignes()) {
-                Article article = articleRepository.findById(ligneDto.getArticleId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Article non trouvé avec l'id : " + ligneDto.getArticleId()));
-
-                LigneDevis ligne = ligneDevisMapper.toEntity(article, devis, ligneDto.getQuantite());
-                ligne = ligneDevisRepository.save(ligne);
-                devis.getLignes().add(ligne);
-                montantTotal = montantTotal.add(ligne.getSousTotal());
-            }
-        }
+        BigDecimal montantTotal = ajouterLignes(devis, dto.getLignes());
 
         devis.setMontantTotal(montantTotal);
         devis = devisRepository.save(devis);
@@ -106,6 +95,11 @@ public class DevisService {
 
     @Transactional
     public DevisResponse createDepuisPrestation(Prestation prestation) {
+        return createDepuisPrestation(prestation, null);
+    }
+
+    @Transactional
+    public DevisResponse createDepuisPrestation(Prestation prestation, List<LigneDevisRequest> lignes) {
         log.info("Création automatique du devis pour la prestation ID: {}", prestation.getId());
         Devis devis = Devis.builder()
                 .dateCreation(LocalDate.now())
@@ -115,8 +109,36 @@ public class DevisService {
                 .lignes(new ArrayList<>())
                 .build();
         devis = devisRepository.save(devis);
+
+        BigDecimal montantTotal = ajouterLignes(devis, lignes);
+        devis.setMontantTotal(montantTotal);
+        devis = devisRepository.save(devis);
+
+        log.info("Devis créé automatiquement - ID: {}, MontantTotal: {}", devis.getId(), devis.getMontantTotal());
         historiqueService.enregistrer("Devis créé automatiquement pour la demande de : " + prestation.getClient().getNom());
         return devisMapper.toResponse(devis);
+    }
+
+    /**
+     * Crée et rattache les lignes du devis, puis renvoie le montant total cumulé.
+     * Centralise le calcul déjà utilisé par la création et la mise à jour manuelle
+     * afin que le devis automatique (demande client) soit chiffré de la même façon.
+     */
+    private BigDecimal ajouterLignes(Devis devis, List<LigneDevisRequest> lignes) {
+        BigDecimal montantTotal = BigDecimal.ZERO;
+        if (lignes == null) {
+            return montantTotal;
+        }
+        for (LigneDevisRequest ligneDto : lignes) {
+            Article article = articleRepository.findById(ligneDto.getArticleId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Article non trouvé avec l'id : " + ligneDto.getArticleId()));
+
+            LigneDevis ligne = ligneDevisMapper.toEntity(article, devis, ligneDto.getQuantite());
+            ligne = ligneDevisRepository.save(ligne);
+            devis.getLignes().add(ligne);
+            montantTotal = montantTotal.add(ligne.getSousTotal());
+        }
+        return montantTotal;
     }
 
     @Transactional
@@ -130,18 +152,7 @@ public class DevisService {
             ligneDevisRepository.delete(ligne);
         }
 
-        BigDecimal montantTotal = BigDecimal.ZERO;
-        if (lignes != null) {
-            for (LigneDevisRequest ligneDto : lignes) {
-                Article article = articleRepository.findById(ligneDto.getArticleId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Article non trouvé avec l'id : " + ligneDto.getArticleId()));
-
-                LigneDevis ligne = ligneDevisMapper.toEntity(article, devis, ligneDto.getQuantite());
-                ligne = ligneDevisRepository.save(ligne);
-                devis.getLignes().add(ligne);
-                montantTotal = montantTotal.add(ligne.getSousTotal());
-            }
-        }
+        BigDecimal montantTotal = ajouterLignes(devis, lignes);
 
         devis.setMontantTotal(montantTotal);
         devis = devisRepository.save(devis);

@@ -1,3 +1,5 @@
+# Profil "local" : développement sur la machine, base MySQL locale.
+# Valeurs par défaut pratiques pour le dev, surchargeables par variables d'environnement.
 spring:
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/decoevent?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC}
@@ -17,9 +19,3 @@ spring:
 app:
   cors:
     allowed-origins: ${CORS_ORIGIN:http://localhost:4200}
-
-springdoc:
-  swagger-ui:
-    path: /swagger-ui/index.html
-  api-docs:
-    path: /v3/api-docs

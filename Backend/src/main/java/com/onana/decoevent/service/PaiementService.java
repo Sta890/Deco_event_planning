@@ -14,6 +14,7 @@ import com.onana.decoevent.exceptions.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -48,6 +49,11 @@ public class PaiementService {
 
         Facture facture = factureRepository.findById(dto.getFactureId())
                 .orElseThrow(() -> new ResourceNotFoundException("Facture non trouvée avec l'id : " + dto.getFactureId()));
+
+        if (dto.getMontant() == null || dto.getMontant().compareTo(BigDecimal.ZERO) <= 0) {
+            log.warn("Echec création paiement : montant nul ou négatif ({}) pour la facture ID {}", dto.getMontant(), dto.getFactureId());
+            throw new BadRequestException("Le montant du paiement doit être supérieur à zéro");
+        }
 
         if (facture.getStatutFacture() == StatutFacture.PAYE) {
             log.warn("Echec création paiement : la facture ID {} est déjà payée", dto.getFactureId());

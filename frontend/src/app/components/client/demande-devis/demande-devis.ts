@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -7,6 +7,7 @@ import { SelectModule } from 'primeng/select';
 import { DatePickerModule } from 'primeng/datepicker';
 import { RouterModule } from '@angular/router';
 import { DemandeApiService } from '../../../services/api/demande-api';
+import { PanierApiService } from '../../../services/api/panier-api';
 import { AuthService } from '../../../services/auth';
 
 @Component({
@@ -21,6 +22,10 @@ export class DemandeDevisComponent {
   envoye = signal(false);
   erreur = signal('');
   chargement = signal(false);
+
+  /** Articles du panier, chiffrés et envoyés avec la demande pour que le devis ne soit pas à 0. */
+  lignesPanier = signal<{ articleId: number; quantite: number; nom: string; sousTotal: number }[]>([]);
+  totalPanier = computed(() => this.lignesPanier().reduce((total, ligne) => total + ligne.sousTotal, 0));
 
   typeEvenementOptions = [
     { label: 'Mariage', value: 'MARIAGE' },
@@ -43,6 +48,7 @@ export class DemandeDevisComponent {
 
   constructor(
     private demandeApiService: DemandeApiService,
+    private panierApiService: PanierApiService,
     private authService: AuthService
   ) {
     const utilisateur = this.authService.getUtilisateur();
@@ -52,7 +58,30 @@ export class DemandeDevisComponent {
         nom: f.nom || utilisateur.nom,
         email: f.email || utilisateur.email
       }));
+      this.chargerPanier(utilisateur.id);
     }
+  }
+
+  chargerPanier(utilisateurId: number): void {
+    this.panierApiService.getPanier(utilisateurId).subscribe({
+      next: (panier) => this.lignesPanier.set(
+        (panier.lignes ?? []).map(l => ({
+          articleId: l.articleId,
+          quantite: l.quantite,
+          nom: l.articleNom,
+          sousTotal: l.sousTotal
+        }))
+      ),
+      error: (err) => console.error('Erreur chargement panier', err)
+    });
+  }
+
+  viderPanier(): void {
+    const utilisateur = this.authService.getUtilisateur();
+    if (!utilisateur) return;
+    this.panierApiService.viderPanier(utilisateur.id).subscribe({
+      error: (err) => console.error('Erreur vidage panier', err)
+    });
   }
 
   mettreAJour(champ: string, valeur: any) {
@@ -77,11 +106,13 @@ export class DemandeDevisComponent {
       dateEvenement: this.toIsoDate(f.dateEvenement),
       lieu: f.lieu,
       nombrePersonnes: f.nombrePersonnes ? Number(f.nombrePersonnes) : null,
-      message: f.message
+      message: f.message,
+      lignes: this.lignesPanier().map(l => ({ articleId: l.articleId, quantite: l.quantite }))
     }).subscribe({
       next: () => {
         this.chargement.set(false);
         this.envoye.set(true);
+        this.viderPanier();
       },
       error: (err) => {
         this.chargement.set(false);

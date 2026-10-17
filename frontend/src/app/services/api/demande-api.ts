@@ -13,6 +13,7 @@ export interface DemandeDevisRequest {
   lieu: string;
   nombrePersonnes: number | null;
   message: string;
+  lignes?: { articleId: number; quantite: number }[];
 }
 
 @Injectable({

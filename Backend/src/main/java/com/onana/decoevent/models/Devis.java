@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -28,8 +29,9 @@ public class Devis extends BaseEntity {
     @JoinColumn(name = "prestation_id", nullable = false)
     private Prestation prestation;
 
+    @Builder.Default
     @OneToMany(mappedBy = "devis", cascade = CascadeType.ALL)
-    private List<LigneDevis> lignes;
+    private List<LigneDevis> lignes = new ArrayList<>();
 
     @OneToOne(mappedBy = "devis", cascade = CascadeType.ALL)
     private Facture facture;

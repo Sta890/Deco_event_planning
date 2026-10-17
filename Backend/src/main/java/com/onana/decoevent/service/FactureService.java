@@ -14,6 +14,7 @@ import com.onana.decoevent.exceptions.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -65,6 +66,11 @@ public class FactureService {
         if (devis.getStatutDevis() != StatutDevis.VALIDE) {
             log.warn("Echec génération facture : le devis ID {} n'est pas validé", devisId);
             throw new BadRequestException("Le devis doit être validé pour générer une facture");
+        }
+
+        if (devis.getMontantTotal() == null || devis.getMontantTotal().compareTo(BigDecimal.ZERO) <= 0) {
+            log.warn("Echec génération facture : le devis ID {} n'a aucun montant", devisId);
+            throw new BadRequestException("Le devis ne contient aucun article chiffré : impossible de générer une facture");
         }
 
         if (factureRepository.findByDevisId(devisId).isPresent()) {

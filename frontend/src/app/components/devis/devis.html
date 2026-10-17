@@ -23,7 +23,7 @@
       <td>{{ devis.dateCreation | date:'dd/MM/yyyy' }}</td>
       <td>{{ devis.clientNom }}</td>
       <td>{{ devis.typeEvenement | enumLabel }}</td>
-      <td>{{ devis.lignes.length }} article(s)</td>
+      <td>{{ devis.lignes?.length ?? 0 }} article(s)</td>
       <td>{{ devis.montantTotal | currency:'XAF':'symbol':'1.0-0' }}</td>
       <td>
         <p-tag [value]="devis.statutDevis | enumLabel" [severity]="getCouleurStatut(devis.statutDevis)" />

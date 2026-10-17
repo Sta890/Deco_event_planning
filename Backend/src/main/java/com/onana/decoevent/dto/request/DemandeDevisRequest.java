@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 public class DemandeDevisRequest {
@@ -33,4 +34,8 @@ public class DemandeDevisRequest {
     private Integer nombrePersonnes;
 
     private String message;
+
+    // Articles déjà choisis par le client depuis son panier. Permet de chiffrer
+    // le devis automatiquement dès la demande, au lieu de le laisser à 0.
+    private List<LigneDevisRequest> lignes;
 }

@@ -76,6 +76,27 @@
 
       </div>
 
+      <!-- Articles du panier inclus dans le devis -->
+      @if (lignesPanier().length > 0) {
+        <div class="form-section" style="margin-bottom: 1rem;">
+          <h3 class="section-title">
+            <i class="pi pi-shopping-cart"></i> Articles de votre panier ({{ lignesPanier().length }})
+          </h3>
+          <div class="fields" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            @for (ligne of lignesPanier(); track ligne.articleId) {
+              <div style="display: flex; justify-content: space-between; color: white; font-size: 0.9rem;">
+                <span>{{ ligne.nom }} × {{ ligne.quantite }}</span>
+                <span style="color: #22c55e;">{{ ligne.sousTotal | currency:'XAF':'symbol':'1.0-0' }}</span>
+              </div>
+            }
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-top: 0.75rem; color: #818cf8; font-weight: 700;">
+            <span>Total estimé</span>
+            <span>{{ totalPanier() | currency:'XAF':'symbol':'1.0-0' }}</span>
+          </div>
+        </div>
+      }
+
       <!-- Message -->
       <div class="field full-width">
         <label>Message / Précisions</label>
