@@ -1,0 +1,104 @@
+<div class="client-layout">
+
+  <!-- Navbar top -->
+  <nav class="navbar">
+
+    <!-- Logo -->
+    <div class="navbar-logo">
+      <i class="pi pi-sparkles logo-icon"></i>
+      <span class="logo-text">DecoEvent</span>
+    </div>
+
+    <!-- Menu centre -->
+    <div class="navbar-menu">
+      @for (item of menuItems; track item.route) {
+
+         <a [routerLink]="item.route"
+          routerLinkActive="nav-active"
+          class="nav-link">
+          <i [class]="item.icon"></i>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    </div>
+
+    <!-- Droite -->
+    <div class="navbar-right">
+
+      <!-- Notifications -->
+      <div class="notif-zone">
+        <button
+          type="button"
+          class="notif-btn"
+          (click)="basculerPanneau()"
+          pTooltip="Notifications"
+          tooltipPosition="bottom">
+          <i class="pi pi-bell"></i>
+          @if (nbNonLues() > 0) {
+            <span class="notif-badge">{{ nbNonLues() }}</span>
+          }
+        </button>
+
+        @if (panneauOuvert()) {
+          <div class="notif-panneau">
+            <div class="notif-entete">
+              <span class="notif-titre">Notifications</span>
+              @if (nbNonLues() > 0) {
+                <button type="button" class="notif-tout-lu" (click)="toutMarquerLu()">
+                  Tout marquer comme lu
+                </button>
+              }
+            </div>
+
+            @if (notifications().length === 0) {
+              <p class="notif-vide">Aucune notification</p>
+            } @else {
+              <div class="notif-liste">
+                @for (notification of notifications(); track notification.id) {
+                  <button
+                    type="button"
+                    class="notif-item"
+                    [class.notif-item-non-lue]="!notification.lue"
+                    (click)="marquerCommeLue(notification)">
+                    <div class="notif-item-entete">
+                      <p-tag
+                        [value]="notification.type | enumLabel"
+                        [severity]="couleurNotification(notification.type)" />
+                      <span class="notif-date">{{ notification.createdAt | date:'dd/MM/yyyy' }}</span>
+                    </div>
+                    <span class="notif-item-titre">{{ notification.titre }}</span>
+                    <span class="notif-item-message">{{ notification.message }}</span>
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <a [routerLink]="'/client/panier'" class="panier-btn">
+        <i class="pi pi-shopping-cart"></i>
+        <span>Panier</span>
+      </a>
+      <div class="user-menu">
+        <i class="pi pi-user user-icon"></i>
+        <span class="user-email">{{ getEmail() }}</span>
+        <p-button
+          icon="pi pi-sign-out"
+          severity="danger"
+          [text]="true"
+          [rounded]="true"
+          (onClick)="seDeconnecter()"
+          pTooltip="Se déconnecter"
+          tooltipPosition="bottom" />
+      </div>
+    </div>
+
+  </nav>
+
+  <!-- Contenu -->
+  <div class="client-content">
+    <router-outlet />
+  </div>
+
+</div>

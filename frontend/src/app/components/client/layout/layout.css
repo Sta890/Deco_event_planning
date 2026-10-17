@@ -1,0 +1,262 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.client-layout {
+  min-height: 100vh;
+  background: #0f1117;
+  font-family: 'Segoe UI', sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== NAVBAR ===== */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: #13151e;
+  border-bottom: 1px solid #ffffff10;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo-icon {
+  font-size: 1.5rem;
+  color: #f472b6;
+}
+
+.logo-text {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: 0.5px;
+}
+
+/* ===== MENU ===== */
+.navbar-menu {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  color: #9ca3af;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.nav-link:hover {
+  background: #ffffff10;
+  color: white;
+}
+
+.nav-active {
+  background: #f472b620;
+  color: #f472b6 !important;
+}
+
+/* ===== DROITE ===== */
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.panier-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  background: #f472b6;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.panier-btn:hover {
+  background: #ec4899;
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.user-icon {
+  color: #9ca3af;
+  font-size: 1rem;
+}
+
+.user-email {
+  color: #9ca3af;
+  font-size: 0.8rem;
+}
+
+/* ===== NOTIFICATIONS ===== */
+.notif-zone {
+  position: relative;
+}
+
+.notif-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: transparent;
+  border: 1px solid #ffffff20;
+  border-radius: 10px;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.notif-btn:hover {
+  background: #ffffff10;
+  color: white;
+}
+
+.notif-badge {
+  position: absolute;
+  top: -0.3rem;
+  right: -0.3rem;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  padding: 0 0.25rem;
+  background: #f472b6;
+  color: #0f1117;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notif-panneau {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  width: 22rem;
+  max-width: 90vw;
+  background: #13151e;
+  border: 1px solid #ffffff20;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px #00000060;
+  overflow: hidden;
+  z-index: 200;
+}
+
+.notif-entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #ffffff10;
+}
+
+.notif-titre {
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.notif-tout-lu {
+  background: transparent;
+  border: none;
+  color: #f472b6;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.notif-tout-lu:hover {
+  text-decoration: underline;
+}
+
+.notif-vide {
+  color: #6b7280;
+  font-size: 0.85rem;
+  padding: 1.5rem 1rem;
+  text-align: center;
+}
+
+.notif-liste {
+  max-height: 24rem;
+  overflow-y: auto;
+}
+
+.notif-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #ffffff08;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.notif-item:hover {
+  background: #ffffff10;
+}
+
+.notif-item-non-lue {
+  background: #f472b60a;
+  border-left: 3px solid #f472b6;
+}
+
+.notif-item-entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.notif-date {
+  color: #6b7280;
+  font-size: 0.7rem;
+}
+
+.notif-item-titre {
+  color: white;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.notif-item-message {
+  color: #9ca3af;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+/* ===== CONTENU ===== */
+.client-content {
+  flex: 1;
+  padding: 2rem;
+}

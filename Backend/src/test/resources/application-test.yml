@@ -1,0 +1,38 @@
+# Profil de test : base H2 en mémoire, jetable à chaque exécution.
+# Les tests fonctionnels ne touchent jamais la base MySQL de développement.
+spring:
+  datasource:
+    url: jdbc:h2:mem:decoevent-test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        # Dialecte laissé vide : Hibernate le détecte automatiquement.
+        # Ne pas forcer MySQLDialect ici, la syntaxe n'est pas compatible H2.
+
+  # Les requêtes SQL des tests sont verbeuses et masquent les assertions.
+  sql:
+    init:
+      mode: never
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:decoevent_secret_key_2026_very_long_and_secure}
+    expiration: 86400000
+  cors:
+    allowed-origins: http://localhost:4200
+  # Les données de démonstration ne doivent pas polluer les assertions des tests.
+  data-initializer:
+    enabled: false
+
+logging:
+  level:
+    root: warn
+    com.onana.decoevent: info
+    org.hibernate.SQL: warn
